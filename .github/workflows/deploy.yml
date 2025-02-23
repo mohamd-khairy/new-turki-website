@@ -38,10 +38,3 @@ jobs:
           server-dir: /public_html/dashboard-v4/ # Target directory on the server
           protocol: ftps
           port: 21
-
-      - name: Clear caches
-        run: |
-          # Clear the npm cache
-          npm cache clean --force
-          # If you want to clear Angular CLI cache (Angular 13+)
-          npx ng cache clean --force
