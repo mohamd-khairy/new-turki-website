@@ -38,3 +38,36 @@ jobs:
           server-dir: /public_html/dashboard-v4/ # Target directory on the server
           protocol: ftps
           port: 21
+
+  deploy_live:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.10.0
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Update API URL for production
+        run: |
+          sed -i 's|http://new-turki-project-api-v2.test/api/v2|https://turkidabayeh.com/dashboard/api/v2|g' src/app/api.service.ts
+
+      - name: Build Angular App
+        run: npm run build -- --configuration=production
+
+      - name: 📂 Sync files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: almaraacompany.com
+          username: ${{ secrets.server_master_turki_name }}
+          password: ${{ secrets.server_master_turki_password }}
+          local-dir: ./dist/maraa_web/ # Source directory on the server
+          server-dir: /public_html/turkidabayeh.com/ # Target directory on the server
+          protocol: ftps
+          port: 21
