@@ -21,6 +21,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Update API URL for production
+        run: |
+          sed -i 's|http://new-turki-project-api-v2.test/api/v2|https://almaraacompany.com/dashboard/api/v2|g' src/app/services/api.service.ts
+
       - name: Build Angular App
         run: npm run build -- --configuration=production
 
@@ -35,3 +39,9 @@ jobs:
           protocol: ftps
           port: 21
 
+      - name: Clear caches
+        run: |
+          # Clear the npm cache
+          npm cache clean --force
+          # If you want to clear Angular CLI cache (Angular 13+)
+          npx ng cache clean --force

@@ -11,9 +11,9 @@ export class ApiService {
 
   private url: string = "";
 
-  private baseUrl = "https://turkidabayeh.com/dashboard/api/v2";
+  // private baseUrl = "https://turkidabayeh.com/dashboard/api/v2";
   // private baseUrl = "https://almaraacompany.com/dashboard/api/v2";
-  // private baseUrl = "http://new-turki-project-api-v2.test/api/v2";
+  private baseUrl = "http://new-turki-project-api-v2.test/api/v2";
   private products_url: string = `${this.baseUrl}/products`;
   private categories_url: string = `${this.baseUrl}/categories`;
   private discount_cat_url: string = `${this.baseUrl}/discounts/categories`;
