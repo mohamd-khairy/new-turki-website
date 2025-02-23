@@ -23,7 +23,20 @@ jobs:
 
       - name: Update API URL for production
         run: |
-          sed -i 's|http://new-turki-project-api-v2.test/api/v2|https://almaraacompany.com/dashboard/api/v2|g' src/app/services/api.service.ts
+          # Define the file path
+          FILE_PATH="src/app/services/api.service.ts"
+
+          # Ensure the file exists
+          if [ ! -f "$FILE_PATH" ]; then
+            echo "Error: $FILE_PATH not found!" && exit 1
+          fi
+
+          # Update baseURL to production API
+          sed -i "s|baseURL: 'http://new-turki-project-api-v2.test/api/v2'|baseURL: 'https://almaraacompany.com/dashboard/api/v2'|" $FILE_PATH
+
+          # Confirm the update
+          echo "Updated $FILE_PATH:"
+          cat $FILE_PATH
 
       - name: Build Angular App
         run: npm run build -- --configuration=production
