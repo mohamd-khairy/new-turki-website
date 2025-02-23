@@ -1,0 +1,67 @@
+<div style="padding: 40px 2%" class="animate__animated animate__fadeIn">
+    <div dir="rtl" style="padding: 0 7%">
+        <p style="font-size: 19px;font-weight: bold">المفضلة&nbsp; </p>
+    </div>
+    <br>
+    <br>
+    
+    <div nz-row style="padding: 0 5%;" dir="rtl">
+
+        <!-- loading -->
+        <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24" *ngIf="!favorites.length && isLoadingFavorites" style="text-align: center">
+            <img src="assets/images/loader-1.gif" width="340" height="340" style="text-align: center" alt="">
+        </div>
+        <!-- favorites -->
+        <div *ngIf="favorites.length" nz-col nzXs="24" nzSm="24" nzMd="18" nzLg="22" nzXl="22" dir="rtl" style="width: 100%" nzAlign="middle" nzJustify="center">
+            <div  nz-row nzAlign="middle" *ngFor="let favorite of favorites;let i = index"  style="background: transparent;padding: 15px;margin: 19px 0;border-radius: 5px;border: 1px solid #eee;-webkit-box-shadow: 0px -1px 34px -44px rgba(122,122,122,1);
+            -moz-box-shadow: 0px -1px 34px -44px rgba(122,122,122,1);
+            box-shadow: 0px -1px 34px -44px rgba(122,122,122,1);">
+                <div nz-col nzXs="0" nzSm="0" nzMd="8" nzLg="8" nzXl="4">
+                    <img src="{{favorite.product.product_images[0].image_url}}" style="border-radius: 18px" width="110" alt="">
+                </div>
+                <div nz-col nzXs="24" nzSm="24" nzMd="0" nzLg="0" nzXl="0" style="background: url({{favorite.product.product_images[0].image_url}});padding: 150px;background-repeat: no-repeat;background-size: 100% 100%;border-radius: 18px">
+                    <!-- <img src="/assets/images/home/product-1.png" width="100%" height="300" alt=""> -->
+                </div>
+                <div nz-col nzXs="24" nzSm="24" nzMd="8" nzLg="8" nzXl="6" style="margin: 10px 0">
+                    <b style="font-size: 20px">{{favorite.product.name_ar}}</b>
+                </div>
+                <div nz-col nzXs="24" nzSm="24" nzMd="8" nzLg="8" nzXl="8" style="margin: 10px 0">
+                    <b style="font-size: 18px">{{favorite.product.price | number:'1.2-5'}} {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</b>
+                </div>
+                <!-- <div nz-col nzXs="24" nzSm="24" nzMd="8" nzLg="8" nzXl="6" style="margin: 22px 0">
+                    <button  style="background: #f7f8fd;border: none;padding: 13px 16px;border-radius: 999px;"><i nz-icon nzType="plus" style="color: #121212"></i></button>
+                    <span style="font-size: 14px;font-weight: bold;margin: 0 6px;">120</span>
+                    <button style="background: #f7f8fd;border: none;padding: 13px 16px;border-radius: 999px;"><i nz-icon nzType="minus" style="color: #121212"></i></button>
+                </div> -->
+            
+                <div nz-col nzXs="24" nzSm="24" nzMd="14" nzLg="14" nzXl="6" style="margin: 22px 0">
+                    <button style="background: transparent;border: none;border-radius: 999px;margin: 0 3px;" (click)="deleteFavorite(favorite.id)">
+                        <i nz-icon nzType="delete" nzTheme="outline" style="font-size: 19px"></i>
+                        <span style="margin: 0 6px;font-size: 15px;">حذف</span>
+                    </button>
+                    <!-- <button style="background: transparent;border: none;color: #b8b9bb;border-radius: 999px;margin: 0 3px;">
+                        <i nz-icon nzType="shopping-cart" nzTheme="outline" style="font-size: 19px"></i>
+                        <span style="margin: 0 6px;font-size: 15px;">إضافة لعربة التسوق</span>
+                    </button> -->
+                </div>
+            </div>
+        </div>
+        <!--  -->
+
+        <div *ngIf="!isLoadingFavorites && favorites.length <= 0" nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24" dir="rtl" style="width: 100%" nzAlign="middle" nzJustify="center">
+            <div nzAlign="middle" nzJustify="center"  style="background: transparent;padding: 15px;margin: 19px 0;text-align: center">
+                <div>
+                    <img src="/assets/images/illustrations/empty_wishlist.png" width="270" height="270"/>
+                </div>
+                <br>
+                <div>
+                  <p style="text-align: center;font-size: 20px">لم يتم إضافة منتجات لقائمة المفضلة</p>  
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+
+    <!-- end of cart & copun -->
+</div>

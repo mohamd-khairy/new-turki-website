@@ -1,0 +1,98 @@
+.search-btn {
+    background: #EBCE6D;
+    border: none;
+}
+
+nz-input-group {
+    padding: 0px !important;
+    border: none !important;
+    // border-radius: 10px;
+    background: white;
+    color: grey;
+
+    ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+        color: rgb(175, 175, 175);
+        opacity: 1; /* Firefox */
+      }
+      
+      :-ms-input-placeholder { /* Internet Explorer 10-11 */
+        color: rgb(175, 175, 175);
+      }
+      
+      ::-ms-input-placeholder { /* Microsoft Edge */
+        color: rgb(175, 175, 175);
+      }
+
+    button {
+        padding: 17px 36px;
+        color: black;
+        font-weight: bold;
+        // border-radius: 10px 0 0 10px;
+    }
+
+
+
+    input {
+        padding: 0 10px;
+        // border-radius: 10px;
+        text-align: right;
+        color: grey;
+    }
+
+    // input:focus {
+    //     outline: none;
+    // }
+    
+
+    i {
+        padding: 0 10px;
+    }
+  }
+
+  // to remove the focus border of any ngzorro input
+ .ant-input-affix-wrapper-focused {
+    box-shadow: none;
+    border: none;
+    outline: 0;
+  } 
+
+  textarea:focus {
+    box-shadow: none;
+    border: none;
+    outline: 0;
+  }
+
+
+  // web css
+@media (max-width:1200px) { 
+    .web-download-section {
+        display: none;
+    }
+    .web-promo-banner {
+        display: none;
+    }
+
+}
+
+// mobile css
+@media (min-width: 1199px) { 
+    .mobile-download-section {
+        display: none;
+    }
+    .mobile-promo-banner {
+        display: none;
+    }
+
+}
+
+::-webkit-input-placeholder { /* Edge */
+    color: rgb(182, 182, 182) !important;
+  }
+  
+  :-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: rgb(182, 182, 182) !important;
+  }
+  
+  ::placeholder {
+    color: rgb(182, 182, 182) !important;
+  }

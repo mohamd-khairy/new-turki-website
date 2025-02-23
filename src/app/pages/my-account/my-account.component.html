@@ -1,0 +1,712 @@
+<!-- add address modal -->
+<nz-modal
+[(nzVisible)]="isVisibleModal"
+nzTitle=""
+nzCentered
+(nzOnOk)="handleOkMiddle()"
+(nzAfterOpen)="handleOpenModal()"
+nzFooter=" "
+nzWidth="90%"
+nzNoAnimation="true"
+nzClosable="false"
+>
+    <ng-container *nzModalContent style="position: relative;">
+        <div nz-row style="width: 100%;height: 45px; border-radius: 11px 11px 0 0" nzAlign="middle" dir="rtl">
+            <div nz-col nzXs="1" nzSm="1" nzMd="1" nzLg="1" nzXl="1" style="font-size: 18px;color: rgb(165, 155, 155);padding: 0 16px;" (click)="handleToggleModal()">
+                <i nz-icon nzType="close" style=""></i>
+            </div>
+            <div nz-col nzXs="23" nzSm="23" nzMd="23" nzLg="23" nzXl="23" style="font-size: 18px;color: rgb(165, 155, 155);padding: 12px 0px;text-align: start">
+                <b style="color: black">إضافة عنوان جديد</b>
+                <p style="font-size: 14px">اختر العنوان من الخريطة</p>
+            </div>
+        </div>
+        <br>
+
+        <div>
+            <div style="margin: 16px 30px">
+                <div nz-row style="position: relative">
+                    <input type="text" nz-input  placeholder="...ابحث عن عنوان معين" style="text-align: right;" [(ngModel)]="address_search_txt" (ngModelChange)="handleAddressSearch($event)"/>
+                </div>
+
+                <div *ngIf="isSearching" style="width: 95%;height: 200px; position: absolute;background: white;z-index: 10;-webkit-box-shadow: 0px 7px 23px -10px rgba(0,0,0,0.75);-moz-box-shadow: 0px 7px 23px -10px rgba(0,0,0,0.75);box-shadow: 0px 7px 23px -10px rgba(0,0,0,0.75);" class="DivWithScroll" dir="rtl">
+                    <!-- <div style="width: 100%"> -->
+                        <div *ngFor="let result of search_results" (click)="pickAddress(result)" style="text-align: right;padding: 10px;border: 1px solid #eee">
+                            <p>{{result.name}}</p>
+                        </div>
+                    <!-- </div> -->
+                </div>
+            </div>
+        </div>
+
+
+
+        <div style="padding: 0 2.5%">
+            <div #myNameElem  style="padding: 16% 0;width: 100%;height: 400px;" ></div>
+        </div>
+
+        <br>
+
+        <div style="padding: 0 2%;text-align: right" dir="rtl">
+            <p>عنوان الموقع</p>
+            <input id="address_text_location" type="text" nz-input   [(ngModel)]="address_text_location" [minlength]="address_text_location.length" [maxlength]="address_text_location.length"/>
+        </div>
+
+        <br>
+
+        <div style="padding: 0 2%;text-align: right" dir="rtl">
+            <p>أدخل مسمى العنوان</p>
+            <input id="address_label" type="text" nz-input placeholder="مسمى العنوان (مثال: البيت, العمل)" [(ngModel)]="address_label"/>
+        </div>
+
+        <br>
+
+        <div style="padding: 0 2%;text-align: right" dir="rtl">
+            <p>الملاحظات</p>
+            <textarea id="address_note" type="text" nz-input placeholder="اكتب ملاحظاتك..." [(ngModel)]="address_note"></textarea>
+        </div>
+        <br>
+
+        <div nz-row style="margin: 0 2%" nzJustify="end">
+            <div nz-col nzXs="24" nzSm="24" nzMd="8" nzLg="8" nzXl="6">
+                <button style="background: #6D1442; border: none;color: #eeeeee;border-radius: 15px;padding: 18px; width: 100%;text-align: center" (click)="addNewAddress()">
+                    <span style="margin: 0 6px;font-size: 19px;">حفظ العنوان</span>
+                </button>
+            </div>
+        </div>
+        <br>
+
+        <!-- close icon -->
+        <img src="/assets/images/login/close-circle.svg" (click)="handleOkMiddle()" style="position: absolute; top: 16px; left: 16px" alt="">
+    </ng-container>
+</nz-modal>
+<!-- end of add address modal -->
+
+
+<div style="padding: 40px 2%">
+    <div dir="rtl" style="padding: 0 7%">
+        <p>حسابي</p>
+        <!-- <button *ngIf="!isLoggedIn" nz-button nzType="primary" (click)="loginModal()">تسجيل الدخول</button> -->
+        <button *ngIf="isLoggedIn" nz-button nzType="primary" (click)="logOut()">تسجيل الخروج</button>
+        <!-- <button *ngIf="isLoggedIn" nz-button nzType="primary" (click)="addToCart()">إضافة للسلة</button>
+        <button *ngIf="isLoggedIn" nz-button nzType="primary" (click)="removeFromCart()">حذف من السلة</button>
+        <button *ngIf="isLoggedIn" nz-button nzType="primary" (click)="addToFavorites()">إضافة للمفضة</button>
+        <button *ngIf="isLoggedIn" nz-button nzType="primary" (click)="removeFromFavorites()">حذف من المفضلة</button> -->
+    </div>
+    <br>
+
+    <div style="padding: 0 7%">
+        <nz-tabset dir="rtl" nzSize="large" [nzSelectedIndex]="selectedTabIndex" (nzSelectedIndexChange)="handleSelectedIndexChange($event)" (nzSelectChange)="handleTabChange($event)">
+            <nz-tab *ngFor="let tab of tabs" [nzTitle]="titleTemplate">
+            <ng-template #titleTemplate>
+                <img src="/assets/images/my_account/{{selectedTabIndex + 1 == tab.id ? tab.active_icon : tab.inactive_icon}}.svg" alt="">
+                {{ tab.name }}
+            </ng-template>
+
+
+            <!-- offers (العروض) -->
+            <div *ngIf="tab.name_en == 'offers'">
+                <div nz-row nzAlign="middle">
+                    <div nz-col *ngFor="let order of [1,2,3,4,5]" nzXs="22" nzSm="22" nzMd="11" nzLg="11" nzXl="7" style="padding: 10px;background: #fff;margin: 10px 10px;border-radius: 10px;-webkit-box-shadow: 0px 0px 10px -4px rgba(189,182,189,1);
+                    -moz-box-shadow: 0px 0px 10px -4px rgba(189,182,189,1);
+                    box-shadow: 0px 0px 10px -4px rgba(189,182,189,1);">
+                        <div nz-row >
+                            <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24" style="">
+                                <img src="https://pbs.twimg.com/media/E2ktN-fVgAEOsrp.jpg" width="100%" height="299" style="border-radius: 10px" alt="" >
+                            </div>
+                        </div>
+                        <br>
+                        <div nz-row >
+                            <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24" style="">
+                                <p style="font-size: 19px;font-weight: bold;margin: 0 10px">عرض خاص لمدة 4 ساعات</p>
+                            </div>
+                        </div>
+                        <div nz-row >
+                            <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24" style="">
+                                <p style="font-size: 14px;margin: 14px 10px">خصم على منتجات اللحوم جميعها, كود الخصم تجدونه داخل الإعلان وهو     DHXYZOOA</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+            </div>
+            <!-- end of offers -->
+
+
+
+            <!-- my profile (بياناتي) -->
+            <div *ngIf="tab.name_en == 'profile'" class="animate__animated animate__fadeIn">
+                <div nz-row nzAlign="middle" nzJustify="space-around">
+                    <div nz-col nzXs="22" nzSm="22" nzMd="10" nzLg="11" nzXl="11" style="margin: 13px 0">
+                        <nz-input-group dir="rtl">
+                            <p for="username" style="font-size: 17px">الإسم</p>
+                            <input id="username" type="text" nz-input [(ngModel)]="user_name"/>
+                        </nz-input-group>
+                    </div>
+                    <div nz-col nzXs="22" nzSm="22" nzMd="10" nzLg="11" nzXl="11" style="margin: 13px 0">
+                        <nz-input-group dir="rtl">
+                            <p for="email" style="font-size: 17px">البريد الإلكتروني</p>
+                            <input id="email" type="text" nz-input [(ngModel)]="email"/>
+                        </nz-input-group>
+                    </div>
+                </div>
+                <br>
+                <div nz-row nzAlign="middle" nzJustify="space-around">
+                    <div nz-col nzXs="22" nzSm="22" nzMd="10" nzLg="11" nzXl="11" style="margin: 13px 0">
+                        <p for="username" style="font-size: 17px">الجنس</p>
+                        <div class="select" >
+                            <select name="format" id="format" style="width: 100%" [(ngModel)]="gender" (change)="handleGenderChange($event)">
+                                <option [selected]="gender == 0 ? 'selected' : ''" value="0">ذكر</option>
+                                <option [selected]="gender == 1 ? 'selected' : ''" value="1">أنثى</option>
+                            </select>
+                            <i nz-icon  class="search-icon" nzType="down" style="color: grey;position: absolute;top: 40%;left: 10px"></i>
+                        </div>
+                    </div>
+                    <div nz-col nzXs="22" nzSm="22" nzMd="10" nzLg="11" nzXl="11" style="margin: 13px 0">
+                        <nz-input-group dir="rtl">
+                            <p for="age" style="font-size: 17px">العمر</p>
+                            <input id="age" type="text" nz-input [(ngModel)]="age"/>
+                        </nz-input-group>
+                    </div>
+                </div>
+                <br>
+                <div nz-row style="margin: 0 2%" nzJustify="end">
+                    <div nz-col nzXs="24" nzSm="24" nzMd="8" nzLg="8" nzXl="6">
+                        <button style="background: #6D1442; border: none;color: #eeeeee;border-radius: 15px;padding: 18px; width: 100%;text-align: center" (click)="updateProfileData()">
+                            <span style="margin: 0 6px;font-size: 19px;">حفظ التغييرات</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+            <!-- end of my profile -->
+
+
+            <!-- mypoints (نقاطي) -->
+            <div *ngIf="tab.name_en == 'points'">
+                <div nz-row>
+                    <div nz-col *ngFor="let order of [1]" nzXs="14" nzSm="10" nzMd="10" nzLg="10" nzXl="6" style="background-image: url('/assets/images/my_account/points/points-card.png');background-repeat: no-repeat;background-size: contain;margin: 10px 10px;border-radius: 10px;height: 208px;width: 360px;">
+                    </div>
+                </div>
+                <br>
+                <br>
+
+                <div nz-row nzJustify="space-between" nzAlign="middle" dir="ltr">
+                    <div nz-col  nzXs="8" nzSm="8" nzMd="8" nzLg="8" nzXl="8" style="text-align: start;">
+                    </div>
+                    <div nz-col  nzXs="8" nzSm="8" nzMd="8" nzLg="8" nzXl="8" style="text-align: end;font-size: 18px"><b>إستبدال بالمكافئات</b><br><nz-space nzSize="small" style="background: linear-gradient(to left, brown, rgb(240, 245, 175));width: 35px;height: 5px;margin: 0px;padding: 0px;"></nz-space></div>
+                </div>
+                <br>
+                <div nz-row nzAlign="middle">
+                    <div nz-col *ngFor="let order of [1,2,3]" nzXs="22" nzSm="22" nzMd="11" nzLg="11" nzXl="7" style="padding: 16px;background: #f8f8f8;margin: 10px 10px;border-radius: 10px;">
+                        <div nz-row nzJustify="start" nzAlign="top" style="color: #121212;margin: 10px 0">
+                            <div nz-col nzXs="10" nzSm="10" nzMd="10" nzLg="10" nzXl="10" style="text-align: start">
+                                <div nz-row nzAlign="middle">
+                                    <div nz-col nzXs="22" nzSm="22" nzMd="22" nzLg="22" nzXl="22">
+                                        <div style="padding: 10px; border-left: 2px dashed #6D1442">
+                                            <img src="/assets/images/my_account/points/points-img-1.png"  alt="">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div nz-col nzXs="14" nzSm="14" nzMd="14" nzLg="14" nzXl="14" style="text-align: center">
+                                <span style="font-size: 12px;color: #121212;">إستبدل</span><br>
+                                <span style="color: grey"> <b style="font-size: 23px;margin: 0 4px;color: #121212;">4000</b> نقطة </span><br>
+                                <b style="font-size: 16px;color: #121212;">ب 100 ريال رصيد</b>
+                                <div style="margin-top: 10px">
+                                    <button style="background: #6D1442; border: none;color: #eeeeee;border-radius: 999px;padding: 8px; width: 88%;text-align: center">
+                                        <span style="margin: 0 6px;font-size: 15px;">إستبدال</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <br><br>
+                <div nz-row nzJustify="space-between" nzAlign="middle" dir="ltr">
+                    <div nz-col  nzXs="8" nzSm="8" nzMd="8" nzLg="8" nzXl="8" style="text-align: start;">
+                    </div>
+                    <div nz-col  nzXs="8" nzSm="8" nzMd="8" nzLg="8" nzXl="8" style="text-align: end;font-size: 18px"><b>تفاصيل العمليات</b><br><nz-space nzSize="small" style="background: linear-gradient(to left, brown, rgb(240, 245, 175));width: 35px;height: 5px;margin: 0px;padding: 0px;"></nz-space></div>
+                </div>
+                <br>
+                <div nz-row nzAlign="middle">
+                    <div nz-col *ngFor="let order of [1,2,3,4,5,6,7,8,9,10,11,12,13,14]" nzXs="22" nzSm="22" nzMd="11" nzLg="11" nzXl="7" style="padding: 16px;background: #f8f8f8;margin: 10px 10px;border-radius: 10px;">
+                        <div nz-row nzJustify="start" nzAlign="middle" style="color: #121212;margin: 10px 0">
+                            <div nz-col nzXs="18" nzSm="18" nzMd="18" nzLg="18" nzXl="18" style="text-align: start">
+                                <div nz-row nzAlign="middle">
+                                    <div nz-col nzXs="9" nzSm="9" nzMd="9" nzLg="9" nzXl="9" >
+                                        <img src="/assets/images/my_account/points/points-yellow-icon.svg" width="55" height="55" alt="">
+                                    </div>
+                                    <div nz-col nzXs="15" nzSm="15" nzMd="15" nzLg="15" nzXl="15">
+                                        <b style="font-size: 17px">إستبدال النقاط من المحفظة بقيمة 100 ريال</b><br>
+                                        <p style="color: grey">10/01/2022</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div nz-col nzXs="6" nzSm="6" nzMd="6" nzLg="6" nzXl="6" style="text-align: end">
+                                <b style="font-size: 19px;color: rgb(24, 180, 24);">500 نقطة</b>
+                                <p style="color: grey">500 نقطة</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end of mypoints -->
+
+
+            <!-- wallet (المحفظة) -->
+            <div *ngIf="tab.name_en == 'wallet'">
+                <div nz-row>
+                    <div nz-col *ngFor="let order of [1]" nzXs="22" nzSm="22" nzMd="15" nzLg="12" nzXl="9" style="padding: 16px;background: #60130c;margin: 10px 10px;border-radius: 10px;">
+                        <div nz-row nzJustify="center" style="color: #121212;margin: 10px 0">
+                            <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24" style="text-align: center">
+                                <p style="color: white"><b style="font-size: 33px">100</b> <small style="font-size: 18px">ريال</small><br><b style="color: white;font-weight: 300">رصيدك الحالي</b></p>
+
+                            </div>
+                        </div>
+                        <div nz-row nzJustify="space-between" style="color: #121212">
+                            <div nz-col nzXs="24" nzSm="24" nzMd="12" nzLg="12" nzXl="13" style="margin: 10px 0">
+                                <button style="background: #60130c; border: 1px solid #fff;color: #eeeeee;border-radius: 8px;padding: 15px; width: 100%;text-align: center">
+                                    <img src="/assets/images/my_account/wallet-add-present.svg" alt="">&nbsp;<span style="margin: 0 6px;font-size: 14px;">إضافة بطاقة هدايا</span>
+                                </button>
+                            </div>
+                            <div nz-col nzXs="24" nzSm="24" nzMd="11" nzLg="11" nzXl="10" style="margin: 10px 0">
+                                <button style="background: #fff; border: 1px solid #fff;color: #6D1442;border-radius: 8px;padding: 15px; width: 100%;text-align: center">
+                                    <img src="/assets/images/my_account/wallet-add-credit.svg" alt="">&nbsp;<span style="margin: 0 6px;font-size: 14px;">إضافة رصيد</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br><br>
+                <div nz-row nzJustify="space-between" nzAlign="middle" dir="ltr">
+                    <div nz-col  nzXs="8" nzSm="8" nzMd="8" nzLg="8" nzXl="8" style="text-align: start;">
+                    </div>
+                    <div nz-col  nzXs="8" nzSm="8" nzMd="8" nzLg="8" nzXl="8" style="text-align: end;font-size: 18px"><b>تفاصيل العمليات</b><br><nz-space nzSize="small" style="background: linear-gradient(to left, brown, rgb(240, 245, 175));width: 35px;height: 5px;margin: 0px;padding: 0px;"></nz-space></div>
+                </div>
+                <div nz-row nzAlign="middle">
+                    <div nz-col *ngFor="let order of [1,2,3,4,5,6]" nzXs="22" nzSm="22" nzMd="11" nzLg="11" nzXl="7" style="padding: 16px;background: #f8f8f8;margin: 10px 10px;border-radius: 10px;">
+                        <div nz-row nzJustify="start" nzAlign="middle" style="color: #121212;margin: 10px 0">
+                            <div nz-col nzXs="18" nzSm="18" nzMd="18" nzLg="18" nzXl="18" style="text-align: start">
+                                <div nz-row nzAlign="middle">
+                                    <div nz-col nzXs="9" nzSm="9" nzMd="9" nzLg="9" nzXl="9" >
+                                            <span style="background: #4db144;;padding: 19px 19px;border-radius: 999px;">
+                                               <img src="/assets/images/my_account/wallet-add-present.svg" width="18" height="18" alt="">
+                                            </span>
+                                    </div>
+                                    <div nz-col nzXs="15" nzSm="15" nzMd="15" nzLg="15" nzXl="15">
+                                        <b style="font-size: 17px">إضافة أموال</b>
+                                        <p style="color: grey">10/01/2022</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div nz-col nzXs="6" nzSm="6" nzMd="6" nzLg="6" nzXl="6" style="text-align: end">
+                                <b style="font-size: 17px;color: rgb(24, 180, 24);">185 ريال</b>
+                                <p style="color: grey">100 ريال</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end of wallet -->
+
+
+            <!-- my addresses (عناويني) -->
+            <div *ngIf="tab.name_en == 'addresses'" class="animate__animated animate__fadeIn">
+                <div nz-row nzAlign="middle">
+                    <div nz-col *ngFor="let item of addresses" nzXs="22" nzSm="22" nzMd="11" nzLg="11" nzXl="7" style="padding: 16px;background: #f8f8f8;margin: 10px 10px;border-radius: 10px;">
+                        <div nz-row nzJustify="start" style="color: #121212;margin: 10px 0">
+                            <div nz-col nzXs="8" nzSm="8" nzMd="8" nzLg="8" nzXl="8" style="text-align: start">
+                                <span>المسمى</span>
+                            </div>
+                            <div nz-col nzXs="10" nzSm="10" nzMd="10" nzLg="10" nzXl="10" style="text-align: start">
+                                <span><b>{{item.label}}</b></span>
+                            </div>
+                        </div>
+                        <div nz-row nzJustify="start" style="color: #121212">
+                            <div nz-col nzXs="8" nzSm="8" nzMd="8" nzLg="8" nzXl="8" style="text-align: start">
+                                <span>العنوان</span>
+                            </div>
+                            <div nz-col nzXs="10" nzSm="10" nzMd="10" nzLg="10" nzXl="10" style="text-align: start">
+                                <span><b>{{item.address}}</b></span>
+                            </div>
+                        </div>
+                        <hr style="border: 1px solid #eee">
+                        <div nz-row nzAlign="middle" nzJustify="start" style="background: #f8f8f8;color: #121212" (click)="paymentSelect('cash')">
+                                <!-- <div nz-col nzXs="2" nzSm="2" nzMd="2" nzLg="2" nzXl="2"> -->
+                                    <!-- <i nz-icon  class="search-icon" nzType="check" *ngIf="paymentType == 'cash'" style="background: #6D1442;padding: 3px;border-radius: 999px;color: white;"></i> -->
+                                <!-- </div> -->
+
+                                <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24">
+                                    <div nz-row nzJustify="start">
+                                        <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="19" nzXl="19">
+
+
+                                            <button style="background: transparent;border: none;margin: 0 3px;" (click)="deleteAddress(item)">
+                                                <img src="/assets/icons/delete.png" width="18" height="18"/>
+
+                                                <span style="color: #121212;margin: 0 10px">حذف</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                    <div nz-col nzXs="22" nzSm="22" nzMd="11" nzLg="11" nzXl="7" style="padding: 69px 16px;background: #f8f8f8;margin: 10px 10px;border-radius: 10px;text-align: center" (click)="showModalMiddle()">
+                        <span style="text-align: center"><img src="/assets/images/my_account/add-circle.svg" style="text-align: center"  width="25" height="25" alt="">&nbsp;&nbsp;<b>إضافة عنوان جديد</b></span>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <!-- <div nz-row style="margin: 0 10%" nzJustify="end">
+                    <div nz-col nzXs="24" nzSm="24" nzMd="8" nzLg="8" nzXl="6">
+                        <button style="background: #6D1442; border: none;color: #eeeeee;border-radius: 15px;padding: 18px; width: 100%;text-align: center">
+                            <span style="margin: 0 6px;font-size: 19px;">حفظ التغييرات</span>
+                        </button>
+                    </div>
+                </div> -->
+            </div>
+
+
+            <!-- (طلباتي) order detail view section -->
+            <div *ngIf="tab.name_en == 'orders' && ordersViewCtrl == 'detail'" class="animate__animated animate__fadeIn">
+                <div nz-row>
+                    <span style="font-size: 19px;font-weight: bold;color: #6D1442">تفاصيل الشحنة</span>
+                </div>
+                <br>
+                <br>
+                <br>
+
+                <div nz-row nzJustify="center">
+                    <div nz-col nzXs="8" nzSm="8" nzMd="8" nzLg="5" nzXl="4">
+                        <div nz-row nzAlign="middle" style="margin-bottom: 25px">
+                            <div nz-col nzXs="3" nzSm="3" nzMd="3" nzLg="3" nzXl="3" style="z-index: 111">
+                                <img src="/assets/images/my_account/track order/Checked.svg"  width="40" height="40" alt="">
+                            </div>
+                            <div nz-col nzXs="19" nzSm="19" nzMd="19" nzLg="19" nzXl="19">
+                                <div style="width: 100%;height: 8px;background: #4ca24b;border-radius: 999px 0 0 999px;"></div>
+                            </div>
+                        </div>
+                        <div nz-row nzAlign="top">
+                            <div nz-col nzXs="3" nzSm="3" nzMd="3" nzLg="3" nzXl="3" style="z-index: 111; text-align: center">
+                                <img src="/assets/images/my_account/track order/ordered.svg" style="text-align: center"  width="25" height="25" alt="">
+                            </div>
+                            &nbsp;
+                            &nbsp;
+                            <div nz-col nzXs="19" nzSm="19" nzMd="19" nzLg="19" nzXl="19">
+                                <b>تم الطلب</b>
+                                <p>تم إنشاء الطلب بتاريخ {{mapDate(currentOrder.created_at)}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div nz-col nzXs="8" nzSm="8" nzMd="8" nzLg="5" nzXl="4">
+                        <div nz-row nzAlign="middle" style="margin-bottom: 25px">
+                            <div nz-col nzXs="3" nzSm="3" nzMd="3" nzLg="3" nzXl="3" style="z-index: 111">
+                                <img src="/assets/images/my_account/track order/Grey-Checked.svg"  width="40" height="40" alt="">
+                            </div>
+                            <div nz-col nzXs="19" nzSm="19" nzMd="19" nzLg="19" nzXl="19">
+                                <div style="width: 100%;height: 8px;background: #e4e5ee;border-radius: 999px 0 0 999px;"></div>
+                            </div>
+                        </div>
+                        <div nz-row nzAlign="top">
+                            <div nz-col nzXs="3" nzSm="3" nzMd="3" nzLg="3" nzXl="3" style="z-index: 111; text-align: center">
+                                <img src="/assets/images/my_account/track order/preparing.svg" style="text-align: center"  width="25" height="25" alt="">
+                            </div>
+                            &nbsp;
+                            &nbsp;
+                            <div nz-col nzXs="19" nzSm="19" nzMd="19" nzLg="19" nzXl="19">
+                                <b>جاري التحضير</b>
+                            </div>
+                        </div>
+                    </div>
+                    <div nz-col nzXs="8" nzSm="8" nzMd="8" nzLg="5" nzXl="4">
+                        <div nz-row nzAlign="middle" style="margin-bottom: 25px">
+                            <div nz-col nzXs="3" nzSm="3" nzMd="3" nzLg="3" nzXl="3" style="z-index: 111">
+                                <img src="/assets/images/my_account/track order/Grey-Checked.svg"  width="40" height="40" alt="">
+                            </div>
+                            <div nz-col nzXs="19" nzSm="19" nzMd="19" nzLg="19" nzXl="19">
+                                <div style="width: 100%;height: 8px;background: #e4e5ee;border-radius: 999px 0 0 999px;"></div>
+                            </div>
+                        </div>
+                        <div nz-row nzAlign="top">
+                            <div nz-col nzXs="3" nzSm="3" nzMd="3" nzLg="3" nzXl="3" style="z-index: 111; text-align: center">
+                                <img src="/assets/images/my_account/track order/quality.svg" style="text-align: center"  width="25" height="25" alt="">
+                            </div>
+                            &nbsp;
+                            &nbsp;
+                            <div nz-col nzXs="19" nzSm="19" nzMd="19" nzLg="19" nzXl="19">
+                                <b>اختبار الجودة</b>
+                            </div>
+                        </div>
+                    </div>
+                    <div nz-col nzXs="8" nzSm="8" nzMd="8" nzLg="5" nzXl="4">
+                        <div nz-row nzAlign="middle" style="margin-bottom: 25px">
+                            <div nz-col nzXs="3" nzSm="3" nzMd="3" nzLg="3" nzXl="3" style="z-index: 111">
+                                <img src="/assets/images/my_account/track order/Grey-Checked.svg"  width="40" height="40" alt="">
+                            </div>
+                            <div nz-col nzXs="19" nzSm="19" nzMd="19" nzLg="19" nzXl="19">
+                                <div style="width: 100%;height: 8px;background: #e4e5ee;border-radius: 999px 0 0 999px;"></div>
+                            </div>
+                        </div>
+                        <div nz-row nzAlign="top">
+                            <div nz-col nzXs="3" nzSm="3" nzMd="3" nzLg="3" nzXl="3" style="z-index: 111; text-align: center">
+                                <img src="/assets/images/my_account/track order/delivering.svg" style="text-align: center"  width="25" height="25" alt="">
+                            </div>
+                            &nbsp;
+                            &nbsp;
+                            <div nz-col nzXs="19" nzSm="19" nzMd="19" nzLg="19" nzXl="19">
+                                <b>خرج للتوصيل</b>
+                                <!-- <p>تم خروج الطلب للتوصيل بتاريخ 10-10-2022</p> -->
+                            </div>
+                        </div>
+                    </div>
+                    <div nz-col nzXs="8" nzSm="8" nzMd="8" nzLg="5" nzXl="4">
+                        <div nz-row nzAlign="middle" style="margin-bottom: 25px">
+                            <div nz-col nzXs="3" nzSm="3" nzMd="3" nzLg="3" nzXl="3" style="z-index: 111">
+                                <img src="/assets/images/my_account/track order/Grey-Checked.svg"  width="40" height="40" alt="">
+                            </div>
+                            <div nz-col nzXs="19" nzSm="19" nzMd="19" nzLg="19" nzXl="19">
+                                <div style="width: 100%;height: 8px;background: #e4e5ee;border-radius: 999px 0 0 999px;"></div>
+                            </div>
+                        </div>
+                        <div nz-row nzAlign="top">
+                            <div nz-col nzXs="3" nzSm="3" nzMd="3" nzLg="3" nzXl="3" style="z-index: 111; text-align: center">
+                                <img src="/assets/images/my_account/track order/delivered.svg" style="text-align: center"  width="25" height="25" alt="">
+                            </div>
+                            &nbsp;
+                            &nbsp;
+                            <div nz-col nzXs="19" nzSm="19" nzMd="19" nzLg="19" nzXl="19">
+                                <b>تم التوصيل</b>
+                                <!-- <p>متوقع توصيل طلبك بتاريخ 11-11-2022</p> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div nz-row (click)="changeOrdersView('list', '')">
+                    <span style="color: red;font-weight: bold"><i nz-icon nz-tooltip nzTooltipTitle="Extra information" class="search-icon" nzType="right"></i>&nbsp;&nbsp;العودة للطلبات</span>
+                </div>
+                <div nz-row>
+
+                    <!--  -->
+                    <div nz-col  nzXs="22" nzSm="22" nzMd="22" nzLg="11" nzXl="14" style="margin: 10px 5px">
+                        <!-- start of section -->
+                        <div nz-row style="padding: 16px;background: #f8f8f8;border-radius: 10px;">
+                            <div nz-col  nzXs="22" nzSm="22" nzMd="22" nzLg="22" nzXl="22">
+                                <div nz-row nzJustify="space-between" style="color: #121212">
+                                    <div nz-col nzXs="22" nzSm="22" nzMd="10" nzLg="10" nzXl="10" style="text-align: start">
+                                        <span>رقم الطلب &nbsp;&nbsp;<b>#{{currentOrder.ref_no}}</b></span>
+                                    </div>
+                                    <div nz-col nzXs="22" nzSm="22" nzMd="10" nzLg="10" nzXl="10" style="text-align: end">
+                                        <span></span>
+                                    </div>
+                                </div>
+
+                                <br>
+
+                                <div nz-row nzJustify="space-between" style="color: #121212">
+                                    <div nz-col nzXs="23" nzSm="23" nzMd="23" nzLg="23" nzXl="23" style="text-align: start">
+                                        <span><img src="/assets/images/my_account/orders-tab-active.svg" width="47" height="47" alt="">&nbsp;&nbsp;&nbsp;<b>{{mapOrderItemNames(currentOrder.orderProducts)}}</b></span>
+                                    </div>
+                                </div>
+
+                                <br>
+
+                                <div nz-row nzJustify="space-between" style="color: #121212">
+                                    <div nz-col nzXs="11" nzSm="11" nzMd="11" nzLg="11" nzXl="11" style="text-align: start">
+                                        <span>طريقة الدفع:&nbsp;&nbsp;<b style="font-size: 12px">{{mapPaymentTypes(currentOrder)}}</b></span>
+                                    </div>
+                                    <div nz-col nzXs="10" nzSm="10" nzMd="10" nzLg="10" nzXl="10" style="text-align: end">
+                                        <span>حالة الطلب: &nbsp;&nbsp;<b style="color: rgb(23, 170, 23)">{{currentOrder.order_state_ar}}</b></span>
+                                    </div>
+                                </div>
+
+                                <br>
+
+                                <div nz-row nzJustify="space-between" style="color: #121212">
+                                    <div nz-col nzXs="20" nzSm="20" nzMd="20" nzLg="20" nzXl="20" style="text-align: start">
+                                        <span>تاريخ الطلب&nbsp;&nbsp;&nbsp;<b>{{mapDate(currentOrder.created_at)}}</b></span>
+                                    </div>
+                                    <div nz-col nzXs="2" nzSm="2" nzMd="2" nzLg="2" nzXl="2" style="text-align: end">
+                                        <!-- <span>نوع الطلب&nbsp;&nbsp;<b>توصيل للمنزل</b></span> -->
+                                    </div>
+                                </div>
+                                <br>
+                                <hr style="border: 1px solid #ebedf1">
+                                <br>
+
+                                <div nz-row nzJustify="space-between" style="color: #121212">
+                                    <div nz-col nzXs="20" nzSm="20" nzMd="20" nzLg="20" nzXl="20" style="text-align: start">
+                                        <span><img src="/assets/images/my_account/orders/total-receipt.svg" alt="">&nbsp;إجمالي المبلغ&nbsp;&nbsp;&nbsp;<b style="font-size: 17px">{{currentOrder.total_amount_after_discount | number:'1.2-5'}} {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</b></span>
+                                    </div>
+                                    <div nz-col nzXs="2" nzSm="2" nzMd="2" nzLg="2" nzXl="2" style="text-align: end">
+                                        <!-- <span><img src="/assets/images/my_account/orders/star-points.svg" alt="">&nbsp;&nbsp;النقاط المكتسبة&nbsp;&nbsp;<b style="font-size: 17px">650 نقطة</b></span> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end of section -->
+
+                        <!-- start of section -->
+                        <div nz-row style="padding: 16px;background: #f8f8f8;margin: 10px 0;border-radius: 10px;">
+                            <div nz-col *ngFor="let prod of currentOrder.orderProducts;let i = index"  nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24">
+                                <div nz-row nzAlign="middle" nzJustify="space-around" style="margin: 19px 0;">
+                                    <div nz-col nzXs="0" nzSm="0" nzMd="4" nzLg="24" nzXl="4">
+                                        <img src="{{prod.product.product_images[0].image_url}}" style="border-radius: 18px" width="110" alt="">
+                                    </div>
+                                    <div nz-col nzXs="20" nzSm="20" nzMd="0" nzLg="0" nzXl="0" style="background: url({{prod.product.product_images[0].image_url}});padding: 110px;background-repeat: no-repeat;background-size: 100% 100%;border-radius: 18px">
+                                        <!-- <img src="/assets/images/home/product-1.png" width="100%" height="300" alt=""> -->
+                                    </div>
+                                    <div nz-col nzXs="20" nzSm="20" nzMd="9" nzLg="24" nzXl="9" style="margin-top: 10px;">
+                                        <b style="font-size: 17px;text-align: center;margin: 10px 0;">{{prod.product.name_ar}}</b>
+                                        <p style="color: rgb(160, 153, 153)">{{prod.size ? prod.size.name_ar : ''}} {{prod.shalwata ? ',' + prod.shalwata.name_ar : ''}} {{prod.cut ? ',' + prod.cut.name_ar : ''}} {{prod.preparation ? ',' + prod.preparation.name_ar : ''}} {{prod.is_Ras ? ',' + 'بدون راس' : ''}} {{prod.is_karashah ? ',' + 'بدون كرشة' : ''}} {{prod.is_kwar3 ? ',' + 'بدون كوارع' : ''}} {{prod.is_lyh ? ',' + 'بدون لية' : ''}}</p>
+                                    </div>
+
+                                    <div nz-col nzXs="20" nzSm="20" nzMd="3" nzLg="24" nzXl="3" style="margin-top: 10px;">
+                                        <b style="font-size: 16px;">{{prod.quantity}}</b>
+                                    </div>
+
+                                    <div nz-col nzXs="20" nzSm="20" nzMd="3" nzLg="24" nzXl="3" style="margin-top: 10px;">
+                                        <b style="font-size: 16px;">{{prod.size ? mapPrice(prod.size.sale_price) + (prod.shalwata ? mapPrice(prod.shalwata.price) : 0) : mapPrice(prod.product.price) + (prod.shalwata ? mapPrice(prod.shalwata.price) : 0) | number:'1.2-5'}} {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</b>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end of section -->
+                    </div>
+                    <!--  -->
+                    <div nz-col  nzXs="22" nzSm="22" nzMd="22" nzLg="11" nzXl="8" style="margin: 10px 5px;">
+                        <div nz-row style="padding: 16px;background: #f8f8f8;border-radius: 10px;">
+                            <div nz-col  nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24" >
+                                <div style="padding: 16px;background: #f8f8f8;border-radius: 5px;margin-top: 18px;" dir="rtl">
+                                    <h2 style="color: #121212;font-size: 16px;font-weight: bold">ملخص فاتورة الطلب</h2>
+                                    <br>
+                                    <div nz-row nzAlign="middle" nzJustify="space-between">
+                                        <div nz-col style="font-size: 15px; color: #9ba1aa;font-weight: bold">عدد المنتجات</div>
+                                        <div nz-col style="font-size: 15px; color: rgb(53, 53, 53);font-weight: bold">{{currentOrder.orderProducts.length}}</div>
+                                    </div>
+                                    <br>
+                                    <div nz-row nzAlign="middle" nzJustify="space-between">
+                                        <div nz-col style="font-size: 15px; color: #9ba1aa;font-weight: bold">إجمالي مبلغ المنتجات</div>
+                                        <div nz-col style="font-size: 15px; color: rgb(53, 53, 53);font-weight: bold">{{currentOrder.total_amount_after_discount | number:'1.2-5'}} {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</div>
+                                    </div>
+                                    <br>
+                                    <div nz-row nzAlign="middle" nzJustify="space-between">
+                                        <div nz-col style="font-size: 15px; color: #9ba1aa;font-weight: bold">الخصم</div>
+                                        <div nz-col style="font-size: 15px; color: rgb(107, 209, 59);font-weight: bold">{{currentOrder.total_amount - currentOrder.total_amount_after_discount | number:'1.2-5'}} {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</div>
+                                    </div>
+                                    <br>
+                                    <div nz-row nzAlign="middle" nzJustify="space-between">
+                                        <div nz-col style="font-size: 15px; color: #9ba1aa;font-weight: bold">رسوم التوصيل</div>
+                                        <div nz-col style="font-size: 15px; color: rgb(53, 53, 53);font-weight: bold">{{currentOrder.delivery_fee | number:'1.2-5'}} {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</div>
+                                    </div>
+                                    <br>
+                                    <hr style="border: 1px solid #dadce0">
+                                    <!--  -->
+                                    <br>
+                                    <div nz-row nzAlign="middle" nzJustify="space-between">
+                                        <div nz-col style="font-size: 15px; color: #9ba1aa;font-weight: bold">إجمالي المبلغ</div>
+                                        <div nz-col style="font-size: 15px; color: #732f29;font-weight: bold">{{currentOrder.total_amount_after_discount | number:'1.2-5'}} {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</div>
+                                    </div>
+                                    <br>
+                                    <br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- my orders list view (طلباتي) -->
+            <div *ngIf="tab.name_en == 'orders' && ordersViewCtrl == 'list'">
+                <div nz-row nzJustify="center">
+                    <!-- loading -->
+                    <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24" *ngIf="!orders.length" style="text-align: center">
+                        <img src="assets/images/loader-1.gif" width="340" height="340" style="text-align: center" alt="">
+                    </div>
+                    <div nz-col *ngFor="let order of orders" nzXs="22" nzSm="22" nzMd="11" nzLg="11" nzXl="7" style="padding: 16px;background: #f8f8f8;margin: 10px 10px;border-radius: 10px;" (click)="changeOrdersView('detail', order)" class="animate__animated animate__fadeIn">
+                        <div nz-row nzJustify="space-between" style="color: #121212">
+                            <div nz-col nzXs="22" nzSm="22" nzMd="10" nzLg="10" nzXl="10" style="text-align: start">
+                                <span>رقم الطلب &nbsp;&nbsp;<b>#{{order.ref_no}}</b></span>
+                            </div>
+                            <div nz-col nzXs="22" nzSm="22" nzMd="10" nzLg="10" nzXl="10" style="text-align: end">
+                                <span>تفاصيل الطلب &nbsp;&nbsp;<i nz-icon nz-tooltip nzTooltipTitle="Extra information" class="search-icon" nzType="left"></i></span>
+                            </div>
+                        </div>
+
+                        <br>
+
+                        <div nz-row nzJustify="space-between" style="color: #121212">
+                            <div nz-col nzXs="23" nzSm="23" nzMd="23" nzLg="23" nzXl="23" style="text-align: start">
+                                <span><img src="/assets/images/my_account/orders-tab-active.svg" width="47" height="47" alt="">&nbsp;&nbsp;&nbsp;<b>{{mapOrderItemNames(order.orderProducts)}}</b></span>
+                            </div>
+                        </div>
+
+                        <br>
+
+                        <div nz-row nzJustify="space-between" style="color: #121212">
+                            <div nz-col nzXs="11" nzSm="11" nzMd="11" nzLg="11" nzXl="11" style="text-align: start">
+                                <!-- is_sacrifice -->
+                                <span>طريقة الدفع:&nbsp;&nbsp;<b style="font-size: 12px">{{mapPaymentTypes(order)}}</b></span>
+                            </div>
+                            <div nz-col nzXs="10" nzSm="10" nzMd="10" nzLg="10" nzXl="10" style="text-align: end">
+                                <span>حالة الطلب: &nbsp;&nbsp;<b style="color: rgb(23, 170, 23)">{{order.order_state_ar}}</b></span>
+                            </div>
+                        </div>
+
+                        <br>
+
+                        <div nz-row nzJustify="space-between" style="color: #121212">
+                            <div nz-col nzXs="22" nzSm="22" nzMd="22" nzLg="22" nzXl="22" style="text-align: start">
+                                <span>تاريخ الطلب&nbsp;&nbsp;&nbsp;<b>{{mapDate(order.created_at)}}</b></span>
+                            </div>
+                            <div nz-col nzXs="1" nzSm="1" nzMd="1" nzLg="1" nzXl="1" style="text-align: end">
+                                <!-- <span>نوع الطلب&nbsp;&nbsp;<b >تم التوصيل</b></span> -->
+                            </div>
+                        </div>
+                        <br>
+                        <hr style="border: 1px solid #ebedf1">
+                        <br>
+
+                        <div nz-row nzJustify="space-between" style="color: #121212">
+                            <div nz-col nzXs="20" nzSm="20" nzMd="20" nzLg="20" nzXl="20" style="text-align: start">
+                                <span><img src="/assets/images/my_account/orders/total-receipt.svg" alt="">&nbsp;إجمالي المبلغ&nbsp;&nbsp;&nbsp;<b style="font-size: 17px">{{order.total_amount_after_discount | number:'1.2-5'}} {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</b></span>
+                            </div>
+                            <div nz-col nzXs="2" nzSm="2" nzMd="2" nzLg="2" nzXl="2" style="text-align: end">
+                                <!-- <span><img src="/assets/images/my_account/orders/star-points.svg" alt="">&nbsp;&nbsp;النقاط المكتسبة&nbsp;&nbsp;<b style="font-size: 17px">650 نقطة</b></span> -->
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="tab.name_en == 'orders' && ordersViewCtrl == 'list' && !isLoadingOrders && orders.length <= 0" nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24" dir="rtl" style="width: 100%" nzAlign="middle" nzJustify="center">
+                <div nzAlign="middle" nzJustify="center"  style="background: transparent;padding: 15px;margin: 19px 0;text-align: center">
+                    <div>
+                        <img src="/assets/images/illustrations/empty_orders.png" width="270" height="270"/>
+                    </div>
+                    <br>
+                    <div>
+                      <p style="text-align: center;font-size: 20px">لم يتم تسجيل طلبات لحسابك</p>
+                    </div>
+
+                </div>
+            </div>
+
+
+            </nz-tab>
+        </nz-tabset>
+    </div>
+
+    <br>
+    <br>
+    <!-- <div style="text-align: center">
+        <nz-pagination [nzPageIndex]="1" [nzTotal]="50" class="pagination"></nz-pagination>
+    </div> -->
+
+    <!-- end of cart & copun -->
+</div>

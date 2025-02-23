@@ -1,0 +1,210 @@
+<div style="padding: 28px 45px">
+    <p style="text-align: right;font-weight: bold;">جميع المنتجات</p>
+    <div nz-row>
+        
+        <!-- side menu mobile -->
+        <div nz-col nzXs="24" nzSm="0" nzMd="0" nzLg="0" nzXl="0" style="background: tansparent">
+            <!-- <p style="text-align: right;font-weight: bold;margin: 5px;">التصفية</p>
+            <div nz-row dir="rtl">
+                <div nz-col nzXs="10" nzSm="10" nzMd="10" nzLg="10" nzXl="10" *ngFor="let item of [1,2,3,4,5];let i = index" style="border: 1px solid rgb(236, 233, 233);border-radius: 5px;padding: 4px;cursor: pointer;margin: 4px 5px;text-align: center;">
+                    <small>{{ i % 2 == 0 ? 'دبوس دجاج' : 'لحم نعيمي أوصال'}}</small>
+                    &nbsp;
+                    <i nz-icon nzType="close" style="background: #570c10;padding: 4px;font-size: 8px;border-radius: 3px;color: #fff;"></i>
+                </div>
+                &nbsp;
+            </div>
+            <br><br> -->
+              <cdk-accordion class="example-accordion">
+                <cdk-accordion-item
+                  *ngFor="let item of categories; let index = index;"
+                  #accordionItem="cdkAccordionItem"
+                  class="example-accordion-item"
+                  role="button"
+                  tabindex="0"
+                  [attr.id]="'accordion-header-' + index"
+                  [attr.aria-expanded]="accordionItem.expanded"
+                  [attr.aria-controls]="'accordion-body-' + index">
+                  <div class="example-accordion-item-header" (click)="accordionItem.toggle()">
+                    <i nz-icon [nzType]="accordionItem.expanded ? 'down' : 'left'" style="color: rgb(173, 168, 168);font-size: 12px;margin: auto 0px;"></i>
+                    
+                    <span class="example-accordion-item-description">
+                        {{ item.type_ar }}
+                        &nbsp;
+                        &nbsp;
+                      <img src="/assets/images/about_us/check.svg" alt="" width="40" height="40">
+                    </span>
+                  </div>
+                  <div
+                    class="example-accordion-item-body"
+                    role="region"
+                    [style.display]="accordionItem.expanded ? '' : 'none'"
+                    [attr.id]="'accordion-body-' + index"
+                    [attr.aria-labelledby]="'accordion-header-' + index" >
+                    <div  nz-row dir="rtl" nzJustify="space-between" *ngFor="let subcat of subcategories; let i = index" (click)="checkButton(subcat.id, subcat.products)">
+                        <div nz-col nzXs="18" nzSm="18" nzMd="18" nzLg="18" nzXl="18" *ngIf="subcat.category.id == item.id" style="padding: 16px 0px;">{{subcat.type_ar}}</div>
+                        <!-- <div nz-col> -->
+                        <!-- <label nz-checkbox [(ngModel)]="isCheckedButton"></label> -->
+
+                        <!-- <nz-radio-group> -->
+                        <i nz-icon nzType="check" nzTheme="outline" *ngIf="subcaty === subcat.id && subcat.category.id == item.id" style="padding: 16px 0px;"></i>
+                        <!-- </nz-radio-group> -->
+                        <!-- </div> -->
+                        <!-- <div style="margin-top: 40px;width: 100%;background-color: #eee;height: 2px;" *ngIf="subcat.category.id == item.id && i == subcategories.length"></div> -->
+
+                    </div>
+                  </div>
+                  
+                </cdk-accordion-item>
+              </cdk-accordion>
+            <br><br>
+            <!-- <div class="price-slider">
+              <p style="font-size: 17px;font-weight: bold;text-align: right;margin-bottom: 30px;">السعر</p>
+              <div>
+                  <nz-slider  [ngModel]="55" dir="rtl" nzDots="false" nzMin="10" nzMax="5000"></nz-slider>
+                  <div nz-row nzJustify="space-between">
+                      <div nz-col dir="rtl" style="color: rgb(161, 159, 159);">5000 ريال</div>
+                      <div nz-col dir="rtl" style="color: rgb(161, 159, 159);">10 ريال</div>
+                  </div>
+              </div>
+            </div> -->
+        </div>
+
+        <!-- main products section -->
+        <div nz-col nzXs="24" nzSm="13" nzMd="12" nzLg="12" nzXl="18" class="main-products">
+
+            <div  *ngIf="!products.length" style="text-align: center;font-size: 40px;">
+              <i nz-icon nzType="loading" nzTheme="outline" ></i>
+            </div>
+
+            <div nz-row nzJustify="space-between" *ngIf="products.length > 0">
+                <div nz-col>
+                    <span dir="rtl" style="color:rgb(161, 159, 159)">عدد المنتجات: {{products.length}}</span>
+                </div>
+                <div nz-col>
+                    <span dir="rtl">
+                        <b style="font-size: 15px;color:rgb(161, 159, 159);margin: 0px 15px">ترتيب حسب</b> &nbsp;&nbsp;    
+                        <button nz-dropdown [nzDropdownMenu]="menu" class="filter-btn">
+                        <b style="color: #121212;">{{filterTxt}}</b>
+                        &nbsp;
+                        &nbsp;
+                        <i nz-icon nzType="down" style="color: #121212;"></i>
+                      </button>
+                      <nz-dropdown-menu #menu="nzDropdownMenu" nzTrigger="click">
+                        <ul nz-menu>
+                          <li nz-menu-item (click)="changeFilter('topDown')">
+                            الأعلى سعراً
+                          </li>
+                          <li nz-menu-item (click)="changeFilter('downTop')">
+                            الأقل سعراً
+                          </li>
+                          <li nz-menu-item (click)="changeFilter('mostCal')">
+                            الأعلى سعرة حرارية
+                          </li>
+                          <li nz-menu-item (click)="changeFilter('leastCal')">
+                            الأقل سعرة حرارية
+                          </li>
+                        </ul>
+                      </nz-dropdown-menu>
+                    </span>
+                </div>
+            </div>
+            <br>
+            <div>
+                <!-- products-scroll-bar -->
+                <div nz-row dir="rtl">
+                    <div nz-col nzXs="12" nzSm="24" nzMd="24" nzLg="12" nzXl="8" *ngFor="let product of products;let i = index" class="product-item animate__animated animate__fadeInUp animate__faster">
+                        <!-- <div style="background: red;width: 180px;opacity: 0;"></div> -->
+                        <div class="img" style="text-align: center">
+                            <a routerLink="/products/{{product.id}}"><img src="{{product.product_images[0].image_url}}" class="product-image"  alt=""> </a>
+                        </div>
+                        <div style="text-align: center">
+                            <!-- <nz-rate [ngModel]="3.5"  nzDisabled dir="rtl" ></nz-rate> -->
+                            <br>
+                        </div>
+                        <div style="text-align: center">
+                          <span dir="ltr"><b style="font-size: 16px;">{{product.name_ar}} <br> {{product.name_en}} </b> <br>  <del dir="rtl" style="color: rgb(172, 172, 172);" *ngIf="product.sale_price != 0 && product.price < product.sale_price">{{product.price | number:'1.2-5'}} {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</del>&nbsp;&nbsp;<b dir="rtl" style="font-size: 20px">{{product.sale_price == 0 ? product.price : product.sale_price | number:'1.2-5'}} {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</b></span>
+                            <!-- <span><b style="font-size: 16px;">أوصال لحم للشوي</b> <br>  <del dir="rtl" style="color: rgb(172, 172, 172);">120 ريال</del>&nbsp;&nbsp;<b dir="rtl">80 ريال</b></span> -->
+                            <!-- <p style="font-weight: bold;text-align: center"> </p> -->
+                        </div>
+                    </div>
+                </div>
+                <!-- products-scroll-bar end -->
+            </div>
+            <!-- <div style="text-align: center">
+                <nz-pagination [nzPageIndex]="1" [nzTotal]="50" class="pagination"></nz-pagination>
+            </div> -->
+        </div>
+
+        <!-- side menu web -->
+        <div nz-col nzXs="0" nzSm="11" nzMd="12" nzLg="12" nzXl="6" style="background: tansparent">
+            <!-- <p style="text-align: right;font-weight: bold;margin: 5px;">التصفية</p>
+            <div nz-row dir="rtl">
+                <div nz-col nzXs="10" nzSm="10" nzMd="10" nzLg="10" nzXl="10" *ngFor="let item of [1,2,3,4,5];let i = index" style="border: 1px solid rgb(236, 233, 233);border-radius: 5px;padding: 4px;cursor: pointer;margin: 4px 5px;text-align: center;">
+                    <small>{{ i % 2 == 0 ? 'دبوس دجاج' : 'لحم نعيمي أوصال'}}</small>
+                    &nbsp;
+                    <i nz-icon nzType="close" style="background: #570c10;padding: 4px;font-size: 8px;border-radius: 3px;color: #fff;"></i>
+                </div>
+                &nbsp;
+            </div> -->
+            <!-- <br><br> -->
+            <cdk-accordion class="example-accordion" *ngIf="categories.length && subcategories.length">
+              <cdk-accordion-item
+                *ngFor="let item of categories; let index = index;"
+                #accordionItem="cdkAccordionItem"
+                class="example-accordion-item"
+                role="button"
+                tabindex="0"
+                [expanded]="true"
+                [attr.id]="'accordion-header-' + index"
+                [attr.aria-expanded]="accordionItem.expanded"
+                [attr.aria-controls]="'accordion-body-' + index">
+                <div class="example-accordion-item-header" (click)="accordionItem.toggle()">
+                  <i nz-icon [nzType]="accordionItem.expanded ? 'down' : 'left'" style="color: rgb(173, 168, 168);font-size: 12px;margin: auto 0px;"></i>
+                  
+                  <span class="example-accordion-item-description">
+                      {{ item.type_ar }}
+                      &nbsp;
+                      &nbsp;
+                    <img src="/assets/images/about_us/check.svg" alt="" width="40" height="40">
+                  </span>
+                </div>
+                <div
+                  class="example-accordion-item-body"
+                  role="region"
+                  [style.display]="accordionItem.expanded ? '' : 'none'"
+                  
+                  [attr.id]="'accordion-body-' + index"
+                  [attr.aria-labelledby]="'accordion-header-' + index" >
+                  <div  nz-row dir="rtl" nzJustify="space-between" *ngFor="let subcat of subcategories; let i = index" (click)="checkButton(subcat.id, subcat.products)">
+                      <div nz-col nzXs="18" nzSm="18" nzMd="18" nzLg="18" nzXl="18" *ngIf="subcat.category.id == item.id" style="padding: 16px 0px;">{{subcat.type_ar}}</div>
+                      <!-- <div nz-col> -->
+                      <!-- <label nz-checkbox [(ngModel)]="isCheckedButton"></label> -->
+                        <!-- {{subcat.products.length}} -->
+                      <!-- <nz-radio-group> -->
+                      <i nz-icon nzType="check" nzTheme="outline" *ngIf="subcaty === subcat.id && subcat.category.id == item.id" style="padding: 16px 0px;"></i>
+                      <!-- </nz-radio-group> -->
+                      <!-- </div> -->
+                      <!-- <div style="margin-top: 40px;width: 100%;background-color: #eee;height: 2px;" *ngIf="subcat.category.id == item.id && i == subcategories.length"></div> -->
+
+                  </div>
+                </div>
+                
+              </cdk-accordion-item>
+            </cdk-accordion>
+              <div class="example-accordion" *ngIf="!categories.length && !subcategories.length" style="text-align: center;font-size: 40px;">
+                <i nz-icon nzType="loading" nzTheme="outline" ></i>
+              </div>
+              <br><br>
+              <!-- <div class="price-slider">
+                <p style="font-size: 17px;font-weight: bold;text-align: right;margin-bottom: 30px;">السعر</p>
+                <div>
+                    <nz-slider  [ngModel]="55" dir="rtl" nzDots="false" nzMin="10" nzMax="5000"></nz-slider>
+                    <div nz-row nzJustify="space-between">
+                        <div nz-col dir="rtl" style="color: rgb(161, 159, 159);">5000 ريال</div>
+                        <div nz-col dir="rtl" style="color: rgb(161, 159, 159);">10 ريال</div>
+                    </div>
+                </div>
+              </div> -->
+        </div>
+    </div>
+</div>

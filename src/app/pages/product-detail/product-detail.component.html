@@ -1,0 +1,386 @@
+
+    <div  *ngIf="!product" style="text-align: center;font-size: 40px;padding: 45vh 10%">
+        <i nz-icon nzType="loading" nzTheme="outline" ></i>
+    </div>
+    <div style="padding: 40px 10%" *ngIf="product">
+    <nz-breadcrumb nzSeparator=">" dir="rtl" style="padding: 0 5%">
+        <nz-breadcrumb-item>
+            <a>الرئيسية</a>
+        </nz-breadcrumb-item>
+        <nz-breadcrumb-item>
+            {{product.sub_category.type_ar}}
+        </nz-breadcrumb-item>
+        <nz-breadcrumb-item>
+            {{product.name_ar}}
+        </nz-breadcrumb-item>
+    </nz-breadcrumb>
+    <br>
+    <div nz-row style="padding: 0 5%;">
+        <!-- mobile product images -->
+        <div nz-col nzXs="24" nzSm="24" nzMd="0" nzLg="0" nzXl="0">
+            <img src="{{product.images[0].image_url}}" style="margin: 8px 0px 18px 0px" width="100%" alt="" class="animate__animated animate__fadeIn">
+            <div nz-row dir="rtl" >
+                <div nz-col nzXs="8" nzSm="8" nzMd="8" nzLg="8" nzXl="8"><img *ngIf="product.images[1]" src="{{product.images[1].image_url}}" width="88%" alt=""></div>
+
+                <div nz-col nzXs="8" nzSm="8" nzMd="8" nzLg="8" nzXl="8"><img *ngIf="product.images[2]" src="{{product.images[2].image_url}}" width="88%" alt=""></div>
+
+                <div nz-col nzXs="8" nzSm="8" nzMd="8" nzLg="8" nzXl="8"><img *ngIf="product.images[3]" src="{{product.images[3].image_url}}" width="88%" alt=""></div>
+            </div>
+        </div>
+
+        <!-- product detail -->
+        <div nz-col nzXs="24" nzSm="24" nzMd="13" nzLg="13" nzXl="13" dir="rtl" class="animate__animated animate__fadeIn">
+            <div style="padding: 0px 5%">
+                <p style="font-size: 16px;margin-bottom: 5px;color: rgb(197, 192, 192);margin-top: 6px;">{{product.sub_category.type_ar}}</p>
+                <h2>{{product.name_ar}}</h2>
+                <!-- <nz-rate [ngModel]="4"  nzDisabled dir="rtl" ></nz-rate> -->
+                <!-- <br> -->
+                <!-- <br> -->
+                <del dir="rtl" class="product-discount-price" *ngIf="product['sale_price'] != 0 && product.price < product['sale_price']">{{product.price | number:'1.2-5'}} {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</del>&nbsp;&nbsp;<b dir="rtl" class="product-detail-price">{{product['sale_price'] == 0 ? product.price : product['sale_price'] | number:'1.2-5'}} {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</b><br><br>
+                <!-- <div>{{product | json}}</div> -->
+                <!-- <span dir="ltr"><del dir="rtl" class="product-discount-price">185 ريال</del>&nbsp;&nbsp;<b dir="rtl" class="product-detail-price">160 ريال</b></span><br><br> -->
+                <p style="font-size: 17px;color: rgb(194, 194, 194);">{{product.description_ar}}</p>
+
+                <br *ngIf="product.weight || product.calories">
+                <!-- product info -->
+                <div *ngIf="product.weight || product.calories">
+                    <p style="font-size: 20px;font-weight: bold" >معلومات المنتج</p>
+                    <div nz-row nzJustify="start">
+                        <div nz-col nzXs="12" nzSm="12" nzMd="12" nzLg="12" nzXl="8" *ngIf="product.weight">
+                            <div nz-row nzAlign="middle" nzJustify="start">
+                                <div nz-col>
+                                    <img src="/assets/images/order_details/weight-icon.svg" width="50" height="50" alt="">
+                                </div>
+                                &nbsp;
+                                &nbsp;
+                                <div nz-col>
+                                    <span class="info-title">الوزن</span><br>
+                                    <span class="info-content">{{product.weight}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div nz-col nzXs="12" nzSm="12" nzMd="12" nzLg="12" nzXl="8" *ngIf="product.calories">
+                            <div nz-row nzAlign="middle" nzJustify="start">
+                                <div nz-col>
+                                    <img src="/assets/images/order_details/calories-icon.svg" width="50" height="50" alt="">
+                                </div>
+                                &nbsp;
+                                &nbsp;
+                                <div nz-col>
+                                    <span class="info-title">السعرات الحرارية</span><br>
+                                    <span class="info-content">{{product.calories}} سعرة حرارية</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br *ngIf="product.sizes.length">
+                <br *ngIf="product.sizes.length">
+                <br *ngIf="product.sizes.length">
+                <br *ngIf="product.sizes.length">
+
+                <div *ngIf="product.sub_category.category_id == 34">
+                    <p style="font-size: 20px;font-weight: bold">اختر يوم الأضحية</p>
+                    <div nz-row nzJustify="start">
+                        <div nz-col nzXs="6" nzSm="7" nzMd="8" nzLg="6" nzXl="7" style="margin: 0 5px">
+                            <div nz-row nzAlign="middle" nzJustify="center" [ngClass]="['default-tab', sacSelectedDay == '07-09' ? 'active-tab' : '']" (click)="selectSacDay('07-09')">
+                                <p style="font-size: 14px;text-align: center;margin: auto 0">اليوم الأول</p>
+                            </div>
+                        </div>
+                        <!--  -->
+                        <div nz-col nzXs="6" nzSm="7" nzMd="8" nzLg="6" nzXl="7" style="margin: 0 5px">
+                            <div nz-row nzAlign="middle" nzJustify="center" [ngClass]="['default-tab', sacSelectedDay == '07-10' ? 'active-tab' : '']" (click)="selectSacDay('07-10')">
+                                <p style="font-size: 14px;text-align: center;margin: auto 0">اليوم الثاني</p>
+                            </div>
+                        </div>
+                        <!--  -->
+                        <div nz-col nzXs="6" nzSm="7" nzMd="8" nzLg="6" nzXl="7" style="margin: 0 5px">
+                            <div nz-row nzAlign="middle" nzJustify="center" [ngClass]="['default-tab', sacSelectedDay == '07-11' ? 'active-tab' : '']" (click)="selectSacDay('07-11')">
+                                <p style="font-size: 14px;text-align: center;margin: auto 0">اليوم الثالث</p>
+                            </div>
+                        </div>
+                        <!--  -->
+                        <div nz-col nzXs="6" nzSm="7" nzMd="8" nzLg="6" nzXl="7" style="margin: 0 5px">
+                            <div nz-row nzAlign="middle" nzJustify="center" [ngClass]="['default-tab', sacSelectedDay == '07-12' ? 'active-tab' : '']" (click)="selectSacDay('07-12')">
+                                <p style="font-size: 14px;text-align: center;margin: auto 0">اليوم الرابع</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br *ngIf="product.sub_category.category_id == 34">
+                <br *ngIf="product.sub_category.category_id == 34">
+
+                <!-- size selection -->
+                <div *ngIf="product.sizes.length">
+                    <p style="font-size: 20px;font-weight: bold">اختر الحجم</p>
+                    <div nz-row nzJustify="start">
+                        <div nz-col nzXs="6" nzSm="7" nzMd="8" nzLg="6" nzXl="7" *ngFor="let size of product.sizes" style="margin: 0 5px">
+                            <div nz-row nzAlign="middle" nzJustify="center" [ngClass]="['default-tab', selectedSize == size.id ? 'active-tab' : '']" (click)="handleSelectedSize(size.id)">
+                                <p style="font-size: 14px;text-align: center;margin: auto 0">{{size.name_ar}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br *ngIf="product.sizes.length">
+                <br *ngIf="product.sizes.length">
+                <br *ngIf="product.sizes.length">
+
+                <!-- cut selection -->
+                <div *ngIf="product.sub_category.category_id == 34 && sacSelectedDay">
+                    <div *ngIf="product.cuts.length">
+                        <p style="font-size: 20px;font-weight: bold">التقطيع</p>
+                        <div nz-row nzJustify="start">
+                            <div nz-col nzXs="6" nzSm="7" nzMd="8" nzLg="6" nzXl="5" *ngFor="let cut of product.cuts" style="margin: 0 5px">
+
+                                <div nz-row nzAlign="middle" nzJustify="center" *ngIf="sacSelectedDay == '07-09' && cut.id != 15" [ngClass]="['default-tab', selectedCut == cut.id ? 'active-tab' : '']" (click)="handleSelectedCut(cut.id)">
+                                    <p style="font-size: 14px;text-align: center;margin: auto 0">{{cut.name_ar}}</p>
+                                </div>
+
+                                <div nz-row nzAlign="middle" nzJustify="center" *ngIf="sacSelectedDay != '07-09'" [ngClass]="['default-tab', selectedCut == cut.id ? 'active-tab' : '']" (click)="handleSelectedCut(cut.id)">
+                                    <p style="font-size: 14px;text-align: center;margin: auto 0">{{cut.name_ar}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br *ngIf="product.cuts.length">
+                    <br *ngIf="product.cuts.length">
+                    <br *ngIf="product.cuts.length">
+                </div>
+                <!--  -->
+                <div *ngIf="product.sub_category.category_id != 34">
+                    <div *ngIf="product.cuts.length">
+                        <p style="font-size: 20px;font-weight: bold">التقطيع</p>
+                        <div nz-row nzJustify="start">
+                            <div nz-col nzXs="6" nzSm="7" nzMd="8" nzLg="6" nzXl="5" *ngFor="let cut of product.cuts" style="margin: 0 5px">
+
+                                <div nz-row nzAlign="middle" nzJustify="center" [ngClass]="['default-tab', selectedCut == cut.id ? 'active-tab' : '']" (click)="handleSelectedCut(cut.id)">
+                                    <p style="font-size: 14px;text-align: center;margin: auto 0">{{cut.name_ar}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br *ngIf="product.cuts.length">
+                    <br *ngIf="product.cuts.length">
+                    <br *ngIf="product.cuts.length">
+                </div>
+
+
+                <!-- cut selection -->
+                <div *ngIf="product.sub_category.category_id == 34 && sacSelectedDay">
+                    <div *ngIf="product.preparations.length">
+                        <p style="font-size: 20px;font-weight: bold">التجهيز</p>
+                        <div nz-row nzJustify="start">
+                            <div nz-col nzXs="6" nzSm="7" nzMd="8" nzLg="6" nzXl="5" *ngFor="let prepare of product.preparations" style="margin: 0 5px">
+
+                                <div nz-row nzAlign="middle" nzJustify="center" *ngIf="sacSelectedDay == '07-09' && prepare.id != 13" [ngClass]="['default-tab', selectedPrepare == prepare.id ? 'active-tab' : '']" (click)="handleSelectedPrepare(prepare.id)">
+                                    <p style="font-size: 14px;text-align: center;margin: auto 0">{{prepare.name_ar}}</p>
+                                </div>
+
+                                <div nz-row nzAlign="middle" nzJustify="center" *ngIf="sacSelectedDay != '07-09'" [ngClass]="['default-tab', selectedPrepare == prepare.id ? 'active-tab' : '']" (click)="handleSelectedPrepare(prepare.id)">
+                                    <p style="font-size: 14px;text-align: center;margin: auto 0">{{prepare.name_ar}}</p>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <br *ngIf="product.preparations.length">
+                    <br *ngIf="product.preparations.length">
+                    <br *ngIf="product.preparations.length">
+                </div>
+
+                <div *ngIf="product.sub_category.category_id != 34">
+                    <div *ngIf="product.preparations.length">
+                        <p style="font-size: 20px;font-weight: bold">التجهيز</p>
+                        <div nz-row nzJustify="start">
+                            <div nz-col nzXs="6" nzSm="7" nzMd="8" nzLg="6" nzXl="5" *ngFor="let prepare of product.preparations" style="margin: 0 5px">
+                                <div nz-row nzAlign="middle" nzJustify="center" [ngClass]="['default-tab', selectedPrepare == prepare.id ? 'active-tab' : '']" (click)="handleSelectedPrepare(prepare.id)">
+                                    <p style="font-size: 14px;text-align: center;margin: auto 0">{{prepare.name_ar}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br *ngIf="product.preparations.length">
+                    <br *ngIf="product.preparations.length">
+                    <br *ngIf="product.preparations.length">
+                </div>
+
+                <!-- cut selection -->
+                <div *ngIf="product.is_shalwata">
+                    <p style="font-size: 20px;font-weight: bold">الشلوطة</p>
+                    <div nz-row nzJustify="start">
+                        <div nz-col nzXs="6" nzSm="7" nzMd="8" nzLg="6" nzXl="5" style="margin: 0 5px">
+                            <div nz-row nzAlign="middle" nzJustify="center" [ngClass]="['default-tab', isShalwata ? 'active-tab' : '']" (click)="toggleShalwata()">
+                                <p style="font-size: 14px;text-align: center;margin: auto 0">شلوطة</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br *ngIf="product.is_shalwata">
+                <br *ngIf="product.is_shalwata">
+                <br *ngIf="product.is_shalwata">
+                <br *ngIf="product.is_shalwata">
+
+
+                <!-- cut selection -->
+                <div *ngIf="product.is_Ras || product.is_karashah || product.is_kwar3 || product.is_lyh">
+                    <p style="font-size: 20px;font-weight: bold">بدون</p>
+                    <div nz-row nzJustify="start">
+                        <div *ngIf="product.is_Ras" nz-col nzXs="6" nzSm="7" nzMd="8" nzLg="6" nzXl="5"  style="margin: 0 5px">
+                            <div  nz-row nzAlign="middle" nzJustify="center" [ngClass]="['default-tab', isRas ? 'active-tab' : '']" (click)="toggleRas()">
+                                <p style="font-size: 14px;text-align: center;margin: auto 0">بدون راس</p>
+                            </div>
+                        </div>
+
+                        <div *ngIf="product.is_karashah" nz-col nzXs="6" nzSm="7" nzMd="8" nzLg="6" nzXl="5"  style="margin: 0 5px">
+                            <div nz-row nzAlign="middle" nzJustify="center" [ngClass]="['default-tab', isKarashah ? 'active-tab' : '']" (click)="toggleKarashah()">
+                                <p style="font-size: 14px;text-align: center;margin: auto 0">بدون كرشة</p>
+                            </div>
+                        </div>
+
+                        <div *ngIf="product.is_kwar3" nz-col nzXs="6" nzSm="7" nzMd="8" nzLg="6" nzXl="5"  style="margin: 0 5px">
+                            <div nz-row nzAlign="middle" nzJustify="center" [ngClass]="['default-tab', isKwar3 ? 'active-tab' : '']" (click)="toggleKwar3()">
+                                <p style="font-size: 14px;text-align: center;margin: auto 0">بدون كوارع</p>
+                            </div>
+                        </div>
+
+                        <div *ngIf="product.is_lyh" nz-col nzXs="6" nzSm="7" nzMd="8" nzLg="6" nzXl="5"  style="margin: 0 5px">
+                            <div nz-row nzAlign="middle" nzJustify="center" [ngClass]="['default-tab', isLyh ? 'active-tab' : '']" (click)="toggleLyh()">
+                                <p style="font-size: 14px;text-align: center;margin: auto 0">بدون لية</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br *ngIf="product.is_Ras || product.is_karashah || product.is_kwar3 || product.is_lyh">
+                <br *ngIf="product.is_Ras || product.is_karashah || product.is_kwar3 || product.is_lyh">
+
+                <!-- item count & cart -->
+                <div>
+                    <div nz-row nzJustify="space-between">
+                        <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="8" style="margin: 7px 0">
+                            <button  style="background: #f7f8fd;border: none;padding: 16px 19px;border-radius: 999px;" (click)="incrementQty()"><i nz-icon nzType="plus" style="color: #121212"></i></button>
+                            <span style="font-size: 14px;font-weight: bold;margin: 0 6px;">{{itemQty}}</span>
+                            <button style="background: #f7f8fd;border: none;padding: 16px 19px;border-radius: 999px;" (click)="decrementQty()"><i nz-icon nzType="minus" style="color: #121212"></i></button>
+                        </div>
+                        <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="15" style="margin: 7px 0">
+                            <div nz-row nzJustify="space-between">
+                                <div nz-col nzXs="10" nzSm="10" nzMd="10" nzLg="10" nzXl="11">
+                                    <button style="background: #6D1442; border: none;color: #eeeeee;border-radius: 999px;padding: 12px; width: 100%;" (click)="addToCart(product)">
+                                        <img src="/assets/images/header/cart.svg" alt="" style="width: 23px;">
+                                        <span style="margin: 0 6px;">أضف للعربة</span>
+                                    </button>
+                                </div>
+                                <div nz-col nzXs="10" nzSm="10" nzMd="10" nzLg="10" nzXl="11">
+                                    <button style="background: #ebce6d;border: none;color: #121212;border-radius: 999px;padding: 12px; width: 100%;" (click)="addToFavorites(product.id)">
+                                        <i nz-icon nzType="heart" nzTheme="outline" style="font-size: 23px"></i>
+                                        <span style="margin: 0 6px;">أضف للمفضلة</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- web product images -->
+        <div nz-col nzXs="0" nzSm="0" nzMd="11" nzLg="11" nzXl="11">
+            <img src="{{product.images[0].image_url}}" style="margin: 8px 0px 18px 0px" width="100%" alt="" class="animate__animated animate__fadeIn">
+            <div nz-row dir="rtl" >
+                <div nz-col nzXs="24" nzSm="8" nzMd="8" nzLg="8" nzXl="8"><img *ngIf="product.images[1]" src="{{product.images[1].image_url}}" width="88%" alt=""></div>
+
+                <div nz-col nzXs="24" nzSm="8" nzMd="8" nzLg="8" nzXl="8"><img *ngIf="product.images[2]" src="{{product.images[2].image_url}}" width="88%" alt=""></div>
+
+                <div nz-col nzXs="24" nzSm="8" nzMd="8" nzLg="8" nzXl="8"><img *ngIf="product.images[3]" src="{{product.images[3].image_url}}" width="88%" alt=""></div>
+            </div>
+        </div>
+    </div>
+    <br><br>
+    <br><br>
+    <!-- item features  -->
+    <div nz-row nzJustify="space-around" dir="rtl" style="padding: 0 5%">
+        <div nz-col nzXs="23" nzSm="11" nzMd="11" nzLg="11" nzXl="5" style="margin-top: 17px">
+            <div nz-row class="item-features" nzAlign="top">
+                <div nz-col nzXs="6" nzSm="6" nzMd="6" nzLg="6" nzXl="6" style="text-align: center;margin-top: 15px;" ><img src="/assets/images/order_details/orders-icon.svg" width="30" height="30" alt=""></div>
+                <div nz-col nzXs="18" nzSm="18" nzMd="18" nzLg="18" nzXl="18" style="margin-top: 15px;color: #121212;">
+                    <p style="font-weight: bold">شحن سريع</p>
+                    <p>شحن سريع لجميع أنحاء المملكة وفي أسرع وقت</p>
+                </div>
+            </div>
+        </div>
+        <div nz-col nzXs="23" nzSm="11" nzMd="11" nzLg="11" nzXl="5" style="margin-top: 17px">
+            <div nz-row class="item-features" nzAlign="top">
+                <div nz-col nzXs="6" nzSm="6" nzMd="6" nzLg="6" nzXl="6" style="text-align: center;margin-top: 15px;" ><img src="/assets/images/order_details/orders-icon.svg" width="30" height="30" alt=""></div>
+                <div nz-col nzXs="18" nzSm="18" nzMd="18" nzLg="18" nzXl="18" style="margin-top: 15px;color: #121212;">
+                    <p style="font-weight: bold">منتجات طازجة</p>
+                    <p>جميع منتجاتنا طازجة ومغلفة ومخزنة بأفضل الطرق</p>
+                </div>
+            </div>
+        </div>
+        <div nz-col nzXs="23" nzSm="11" nzMd="11" nzLg="11" nzXl="5" style="margin-top: 17px">
+            <div nz-row class="item-features" nzAlign="top">
+                <div nz-col nzXs="6" nzSm="6" nzMd="6" nzLg="6" nzXl="6" style="text-align: center;margin-top: 15px;" ><img src="/assets/images/order_details/orders-icon.svg" width="30" height="30" alt=""></div>
+                <div nz-col nzXs="18" nzSm="18" nzMd="18" nzLg="18" nzXl="18" style="margin-top: 15px;color: #121212;">
+                    <p style="font-weight: bold">طرق دفع متعددة</p>
+                    <p>يمكنك اختيار أسهل طرق الدفع من بين الخيارات المتعددة</p>
+                </div>
+            </div>
+        </div>
+        <div nz-col nzXs="23" nzSm="11" nzMd="11" nzLg="11" nzXl="5" style="margin-top: 17px">
+            <div nz-row class="item-features" nzAlign="top">
+                <div nz-col nzXs="6" nzSm="6" nzMd="6" nzLg="6" nzXl="6" style="text-align: center;margin-top: 15px;" ><img src="/assets/images/order_details/orders-icon.svg" width="30" height="30" alt=""></div>
+                <div nz-col nzXs="18" nzSm="18" nzMd="18" nzLg="18" nzXl="18" style="margin-top: 15px;color: #121212;">
+                    <p style="font-weight: bold">نقاط وهدايا</p>
+                    <!-- <p>جمع نقاط عند شرائك منتجاتنا وقم باستبدالها بخصومات وهدايا</p> -->
+                    <p>اجمع نقاط واستبدلها بخصومات وهدايا عند شرائك منتجاتنا</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <br><br>
+    <br><br>
+    <!-- new products section -->
+    <div>
+        <div class="web-new-products">
+            <div>
+                    <!-- products-header -->
+                    <div nz-row nzJustify="space-between" nzAlign="middle" *ngIf="scrollItems.length">
+                        <div nz-col  nzXs="8" nzSm="8" nzMd="8" nzLg="8" nzXl="8" style="text-align: start;">
+                            <div nz-row >
+                                <div nz-col ><button nz-button nzType="primary" nzShape="circle"><i nz-icon nzType="left"></i></button></div>
+                                &nbsp;
+                                &nbsp;
+                                <div nz-col><button nz-button nzType="primary" nzShape="circle"><i nz-icon nzType="right"></i></button></div>
+                            </div>
+                        </div>
+                        <div nz-col  nzXs="8" nzSm="8" nzMd="8" nzLg="8" nzXl="8" style="text-align: end"><b>منتجات مشابهة</b><br><nz-space nzSize="small" style="background: linear-gradient(to left, #6D1442, rgb(240, 245, 175));width: 35px;height: 5px;margin: 0px;padding: 0px;"></nz-space></div>
+                    </div>
+                    <!-- products-header end -->
+
+                    <!-- products-scroll-bar -->
+                    <div class="scroll-container hide-scrollbar" dir="rtl">
+                        <div *ngFor="let item of scrollItems;let i = index" style="height: 320px;" (click)="openProduct(item.id)">
+                            <!-- <div style="background: red;width: 180px;opacity: 0;"></div> -->
+
+                            <div class="img">
+                                <img src="{{item.product_images[0].image_url}}" width="160" height="150" alt="">
+                            </div>
+                            <!-- <div style="text-align: center">
+                                <nz-rate [ngModel]="3.5"  nzDisabled dir="rtl" ></nz-rate>
+                            </div> -->
+                            <div style="text-align: center">
+                                <span><b style="font-size: 16px;">{{item.name_ar}}</b> <br>  <del dir="rtl" *ngIf="item['sale_price'] != 0 && item.price < item['sale_price']" style="font-size: 16px; color: rgb(194, 194, 194)">{{item.price | number:'1.2-5'}} {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</del>&nbsp;&nbsp;<b dir="rtl" style="font-size: 16px;">{{item['sale_price'] == 0 ? item.price : item['sale_price'] | number:'1.2-5'}} {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</b></span>
+                                <!-- <p style="font-weight: bold;text-align: center"> </p> -->
+                            </div>
+                        </div>
+                    </div>
+                <!-- products-scroll-bar end -->
+            </div>
+        </div>
+    </div>
+    <!-- new products section end -->
+    <!-- #f3e6e6 -->
+</div>

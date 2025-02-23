@@ -1,0 +1,992 @@
+<nz-layout class="app-layout" [ngStyle]="{'direction': direction, 'position': 'relative'}">
+  <!--  pick user location modal -->
+  <nz-modal [(nzVisible)]="isVisiblePickUserLocModal" nzTitle="" nzCentered (nzOnOk)="handleOkPickUserLocMiddle()"
+    (nzAfterOpen)="handleOpenPickUserLocModal()" nzFooter=" " nzWidth="90%" nzNoAnimation="true" nzClosable="false">
+    <ng-container *nzModalContent style="position: relative;">
+      <div nz-row style="width: 100%;height: 45px; border-radius: 11px 11px 0 0" nzAlign="middle" dir="rtl">
+        <!-- <div nz-col nzXs="1" nzSm="1" nzMd="1" nzLg="1" nzXl="1" style="font-size: 18px;color: rgb(165, 155, 155);padding: 0 16px;" (click)="handleTogglePickUserLocModal()">
+                <i nz-icon nzType="close" style=""></i>
+            </div> -->
+        <div nz-col nzXs="23" nzSm="23" nzMd="23" nzLg="23" nzXl="23"
+          style="font-size: 16px;color: rgb(165, 155, 155);padding: 12px 14px;text-align: start">
+          <p style="font-size: 12px"></p>
+          <b style="color: black">حدد موقعك على الخريطة</b>
+          <!-- <p style="font-size: 12px"></p> -->
+        </div>
+      </div>
+      <br>
+
+      <div>
+        <div style="margin: 16px 30px">
+          <div nz-row style="position: relative">
+            <input type="text" nz-input placeholder="...ابحث عن عنوان معين"
+              style="text-align: right;background: #eee;border: none" [(ngModel)]="address_search_txt"
+              (ngModelChange)="handleAddressSearch($event)" />
+          </div>
+
+          <div *ngIf="isSearchingPickUserLoc"
+            style="width: 95%; position: absolute;background: white;z-index: 10;-webkit-box-shadow: 0px 7px 23px -10px rgba(0,0,0,0.75);-moz-box-shadow: 0px 7px 23px -10px rgba(0,0,0,0.75);box-shadow: 0px 7px 23px -10px rgba(0,0,0,0.75);"
+            class="DivWithScroll" dir="rtl">
+            <!-- <div style="width: 100%"> -->
+            <div *ngFor="let result of search_results_u_loc" (click)="pickAddress(result)"
+              style="text-align: right;padding: 10px;border: 1px solid #eee">
+              <p>{{result.name}}</p>
+            </div>
+            <!-- </div> -->
+          </div>
+        </div>
+      </div>
+
+
+
+      <div style="padding: 0 2.5%">
+        <div #userLocElem style="padding: 16% 0;width: 100%;height: 400px;"></div>
+      </div>
+
+      <br>
+
+      <div style="padding: 0 2%;text-align: right" dir="rtl">
+        <p>عنوان الموقع</p>
+        <input id="address_text_location" type="text" nz-input style="background: #eee;border: none;color: black;"
+          disabled [(ngModel)]="address_text_location" [minlength]="address_text_location.length"
+          [maxlength]="address_text_location.length" />
+      </div>
+
+      <br>
+
+      <div nz-row style="margin: 0 2%" nzJustify="end">
+        <div nz-col nzXs="24" nzSm="24" nzMd="8" nzLg="8" nzXl="6">
+          <button
+            style="background: #6D1442; border: none;color: #eeeeee;border-radius: 15px;padding: 9px; width: 100%;text-align: center"
+            (click)="submitAddress()">
+            <span style="margin: 0 6px;font-size: 19px;">حفظ</span>
+          </button>
+        </div>
+      </div>
+      <br>
+
+      <!-- close icon -->
+      <!-- <img src="../../assets/images/login/close-circle.svg" (click)="handleOkPickUserLocMiddle()" style="position: absolute; top: 16px; left: 16px" alt=""> -->
+      <img src="/assets/images/login/close-circle.svg" (click)="handleOkPickUserLocMiddle()"
+        style="position: absolute; top: 16px; left: 16px" alt="">
+    </ng-container>
+  </nz-modal>
+  <!-- end of pick user location modal -->
+
+  <!-- START ADDRESSES MODAL -->
+  <nz-modal [(nzVisible)]="isVisibleAddressModal" nzTitle="" nzCentered (nzOnOk)="handleAddressOkMiddle()"
+    (nzAfterOpen)="handleOpenAddressModal()" nzFooter=" " nzWidth="90%" nzNoAnimation="true" nzClosable="false">
+    <ng-container *nzModalContent style="position: relative;">
+      <div nz-row dir="rtl" style="border-radius: 11px 11px 0 0" nzAlign="start" nzJustify="center">
+        <!-- <div nz-col nzXs="0" nzSm="0" nzMd="0" nzLg="13" nzXl="13" style="background-image: url('https://www.emaratalyoum.com/polopoly_fs/1.1611469.1647520534!/image/image.jpeg');background-size: cover;border-radius: 0 11px 11px 0;min-height: 100vh;">
+
+                </div> -->
+        <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24" style="text-align: center">
+          <div style="margin: 10px 5%" dir="rtl">
+
+            <div *ngIf="isLoadingAddresses && addresses.length < 1">
+              <img src="assets/images/loader-1.gif" width="340" height="340" style="text-align: center" alt="">
+            </div>
+
+            <!-- addresses lists -->
+            <div *ngIf="!isLoadingAddresses">
+              <p style="text-align: center;font-weight: bold;font-size: 18px">عناويني</p>
+
+              <p style="text-align: center;font-size: 14px;margin: 14px 0"
+                *ngIf="!addresses.length && !default_address.length">لم تقم بإضافة عناوين لحسابك</p>
+
+              <br *ngIf="default_address.length > 0">
+              <br *ngIf="default_address.length > 0">
+              <div *ngIf="default_address.length > 0">
+                <p style="text-align: right">العنوان الحالي:</p>
+                <div nz-row style="border: 1px solid #eee;padding: 10px;border-radius: 8px;background:#eee1fc">
+                  <div nzXs="11" nzSm="11" nzMd="12" nzLg="12" nzXl="12">
+                    <img src="/assets/icons/pin.png" style="margin: 0 5px;width: 26px;" alt="">
+                    {{default_address[0].address}}
+                  </div>
+                </div>
+              </div>
+
+              <br *ngIf="addresses.length">
+
+              <!-- <cdk-virtual-scroll-viewport > -->
+              <p style="text-align: center" *ngIf="addresses.length">تحديد العنوان الرئيسي</p>
+              <nz-list>
+                <nz-list-item *ngFor="let item of addresses"
+                  style="border: 1px solid #eee;margin: 10px 0;padding: 16px;border-radius: 8px"
+                  (click)="setDefaultAddress(item)">
+                  <!-- <nz-skeleton *ngIf="!item" [nzAvatar]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton> -->
+                  <!-- <nz-list-item-meta-title> -->
+                  <a>{{ item.address }}</a>
+                  <!-- </nz-list-item-meta-title> -->
+                </nz-list-item>
+              </nz-list>
+
+              <!-- <div *ngIf="isLoadingAddresses && !addresses.length">
+                              <img src="../../../assets/images/loader-1.gif" width="400" height="400" alt="">
+                            </div> -->
+              <!-- </cdk-virtual-scroll-viewport> -->
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- <img src="/assets/images/login/close-circle.svg" (click)="handleAddressOkMiddle()" style="position: absolute; top: 16px; left: 16px" alt=""> -->
+      <!-- prod close icon -->
+      <!-- <img src="/assets/images/login/close-circle.svg" (click)="handleAddressOkMiddle()" style="position: absolute; top: 16px; left: 16px" alt=""> -->
+      <!-- dev close icon -->
+      <img src="/assets/images/login/close-circle.svg" (click)="handleAddressOkMiddle()"
+        style="position: absolute; top: 16px; left: 16px" alt="">
+    </ng-container>
+  </nz-modal>
+  <!-- END OF ADDRESSES MODAL -->
+
+
+  <!-- START OF BRANCH PICK UP -->
+
+  <nz-modal [(nzVisible)]="isVisibleBranchModal" nzTitle="" nzCentered (nzOnOk)="handleBranchOkMiddle()"
+    (nzAfterOpen)="handleOpenBranchModal()" nzFooter=" " nzWidth="90%" nzNoAnimation="true" nzClosable="false">
+    <ng-container *nzModalContent style="position: relative;">
+      <div nz-row dir="rtl" style="border-radius: 11px 11px 0 0;padding: 40px" nzAlign="start" nzJustify="center">
+
+        <h1>قريباً</h1>
+      </div>
+      <img src="/assets/images/login/close-circle.svg" (click)="handleBranchOkMiddle()"
+        style="position: absolute; top: 16px; left: 16px" alt="">
+    </ng-container>
+  </nz-modal>
+
+  <!-- END OF BRANCH PICK UP -->
+
+  <!-- modal -->
+  <nz-modal [(nzVisible)]="isVisibleModal" nzTitle="" nzCentered (nzOnOk)="handleOkMiddle()"
+    (nzAfterOpen)="handleOpenModal()" nzFooter=" " nzWidth="90%" nzNoAnimation="true" nzClosable="false">
+    <ng-container *nzModalContent style="position: relative;">
+      <!-- <div nz-row style="width: 100%;height: 45px; border-radius: 11px 11px 0 0" nzAlign="middle" dir="rtl">
+                <div nz-col nzXs="1" nzSm="1" nzMd="1" nzLg="1" nzXl="1" style="font-size: 18px;color: rgb(165, 155, 155);padding: 0 16px;" (click)="handleToggleModal()">
+                    <i nz-icon nzType="close" style=""></i>
+                </div>
+                <div nz-col nzXs="22" nzSm="22" nzMd="22" nzLg="22" nzXl="22" style="text-align: center">
+                </div>
+            </div> -->
+      <!-- <div style="text-align: center;padding: 25px 0">
+                <img src="/assets/images/home/mockup-download.png" width="230" height="220" alt="">
+            </div>
+            <div style="text-align: center;padding: 16px">
+                <a nz-button nzType="primary"  href="https://bit.ly/3tB2qdu" target="_parent" nzBlock nzSize="large" nzShape="round" dir="rtl">
+                    <i nz-icon nzType="download" style="font-size: 20px;"></i>
+                    حمل التطبيق
+                </a>
+                <br>
+                <br>
+                <a nz-button nzType="primary" href="https://api.whatsapp.com/send?phone=96655123456789&text=هلا%20تركي%20للذبائح%20جايكم%20من%20الموقع%20,%20وعندي%20استفسار" target="_parent" nzBlock nzSize="large" nzShape="round" style="background: #ebce6d;border: none" dir="rtl">
+                    <i nz-icon nzType="whats-app" style="font-size: 20px;"></i>
+                    تواصل لطلب المساعدة
+                </a>
+            </div> -->
+      <!-- https://www.emaratalyoum.com/polopoly_fs/1.1611469.1647520534!/image/image.jpeg -->
+      <div nz-row dir="rtl" style="border-radius: 11px 11px 0 0" nzAlign="middle" nzJustify="center">
+        <!-- <div nz-col nzXs="0" nzSm="0" nzMd="0" nzLg="13" nzXl="13" style="background-image: url('https://www.emaratalyoum.com/polopoly_fs/1.1611469.1647520534!/image/image.jpeg');background-size: cover;border-radius: 0 11px 11px 0;min-height: 100vh;">
+
+                </div> -->
+        <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24" style="text-align: center">
+          <br>
+          <img *ngIf="authPhase >= 0 && authPhase < 3" src="/assets/images/login/logo.svg" alt="" style="width: 20%">
+          <br><br>
+          <b *ngIf="authPhase == 1 && !isLoading" dir="rtl">سيصلك كود إلى <b dir="ltr">{{user_mobile}}</b></b>
+          <img *ngIf="authPhase == 3" src="/assets/images/my_account/track order/Checked.svg" width="120px" alt="">
+          <br><br>
+          <b *ngIf="authPhase == 3" dir="rtl" style="font-size: 19px">شكراً, تم تسجيل الدخول بنجاح</b>
+          <img *ngIf="authPhase >= 0 && authPhase < 3" src="/assets/images/login/mobile-illustration.svg" alt="">
+          <br><br>
+
+          <div style="margin: 10px 5%" dir="rtl">
+
+            <div *ngIf="isLoading">
+              <img src="assets/images/loader-1.gif" width="340" height="340" style="text-align: center" alt="">
+            </div>
+
+            <!-- mobile number -->
+            <div *ngIf="authPhase == 0 && !isLoading">
+              <p style="text-align: start;font-weight: bold">أدخل رقم الجوال</p>
+              <nz-input-group [nzSuffix]="suffixTemplateInfo" [nzPrefix]="prefixTemplateInfo" dir="ltr"
+                style="border: none;padding: 17px;background: #f4f6f7;border-radius: 15px">
+                <input type="text" nz-input placeholder="5xxxxxxxx" dir="ltr"
+                  style="background: transparent;border: none;text-align: center" maxlength="9"
+                  [(ngModel)]="user_mobile" />
+              </nz-input-group>
+              <ng-template #suffixTemplateInfo>
+                <img src="/assets/images/login/mobile-icon.svg" style="margin: 0 10px;width: 22px;" alt="">
+              </ng-template>
+
+              <ng-template #prefixTemplateInfo style="border: 1px black solid;padding: 30px">
+                <a nz-button nz-dropdown [nzDropdownMenu]="menu" nzPlacement="bottomCenter" nzType="text" dir="ltr"><img
+                    src="/assets/images/login/{{selectedCountry == 'ksa' ? 'ksa' : 'uae'}}.png" width="35"
+                    alt="">&nbsp;{{selectedCountry == 'ksa' ? '(+966)' : '(+971)'}}</a>
+                <nz-dropdown-menu #menu="nzDropdownMenu">
+                  <ul nz-menu dir="ltr">
+                    <!-- <li nz-menu-item><img src="/assets/images/login/ksa.png" alt=""></li>
+                                  <li nz-menu-item><img src="/assets/images/login/uae.png" alt=""></li> -->
+
+                    <li nz-menu-item style="text-align: center" (click)="selectCountry('ksa')"><img
+                        src="/assets/images/login/ksa.png" width="35" alt="">&nbsp;(+966)</li>
+                    <li nz-menu-item style="text-align: center" (click)="selectCountry('uae')"><img
+                        src="/assets/images/login/uae.png" width="35" alt="">&nbsp;(+971)</li>
+                  </ul>
+                </nz-dropdown-menu>
+              </ng-template>
+
+              <br>
+              <br>
+              <div style="margin: 10px 0" dir="rtl">
+                <button
+                  style="background: #6D1442; border: none;color: #eeeeee;border-radius: 15px;padding: 18px; width: 100%;text-align: center"
+                  (click)="verifyMobile()">
+                  <span style="margin: 0 6px;font-size: 15px;">تحقق</span>
+                </button>
+              </div>
+            </div>
+
+
+
+
+            <!-- username -->
+            <div *ngIf="authPhase == 2 && !isLoading">
+              <p style="text-align: start;font-weight: bold">عرفنا بإسمك</p>
+              <nz-input-group [nzSuffix]="suffixTemplateInfo" dir="ltr"
+                style="border: none;padding: 17px;background: #f4f6f7;border-radius: 15px">
+                <input type="text" nz-input placeholder="محمد أحمد" dir="ltr"
+                  style="background: transparent;border: none;text-align: right" maxlength="13"
+                  [(ngModel)]="user_name" />
+              </nz-input-group>
+              <ng-template #suffixTemplateInfo>
+                <i nz-icon nzType="user" style="margin: 0 10px;width: 22px;font-size: 17px"></i>
+                <!-- <img src="/assets/images/login/mobile-icon.svg"  style="margin: 0 10px;width: 22px;" alt=""> -->
+              </ng-template>
+              <br>
+              <br>
+              <div style="margin: 10px 0" dir="rtl">
+                <button
+                  style="background: #6D1442; border: none;color: #eeeeee;border-radius: 15px;padding: 18px; width: 100%;text-align: center"
+                  (click)="updateName()">
+                  <span style="margin: 0 6px;font-size: 15px;">حفظ</span>
+                </button>
+              </div>
+            </div>
+
+
+            <!-- code verification -->
+            <div *ngIf="authPhase == 1 && !isLoading">
+              <p style="text-align: center;font-weight: bold">أدخل كود التفعيل</p>
+              <br>
+              <div nz-row nzJustify="center" dir="ltr">
+                <div nz-col>
+                  <nz-input-group
+                    style="width: 60px;border: none;padding: 14px;background: #f4f6f7;border-radius: 10px">
+                    <input type="text" (input)="handleDigitOneCtrl($event)" #digitOne nz-input placeholder=""
+                      style="text-align: center;background: transparent;border: none" maxlength="1" dir="rtl" />
+                  </nz-input-group>
+                </div>
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                <div nz-col>
+                  <nz-input-group
+                    style="width: 60px;border: none;padding: 14px;background: #f4f6f7;border-radius: 10px">
+                    <input type="text" (input)="handleDigitTwoCtrl($event)" #digitTwo nz-input placeholder=""
+                      style="text-align: center;background: transparent;border: none" maxlength="1" dir="rtl" />
+                  </nz-input-group>
+                </div>
+
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                <div nz-col>
+                  <nz-input-group
+                    style="width: 60px;border: none;padding: 14px;background: #f4f6f7;border-radius: 10px">
+                    <input type="text" (input)="handleDigitThreeCtrl($event)" #digitThree nz-input placeholder=""
+                      style="text-align: center;background: transparent;border: none" maxlength="1" dir="rtl" />
+                  </nz-input-group>
+                </div>
+
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                <div nz-col>
+                  <nz-input-group
+                    style="width: 60px;border: none;padding: 14px;background: #f4f6f7;border-radius: 10px">
+                    <input type="text" (input)="handleDigitFourCtrl($event)" #digitFour nz-input placeholder=""
+                      style="text-align: center;background: transparent;border: none" maxlength="1" dir="rtl" />
+                  </nz-input-group>
+                </div>
+              </div>
+              <br>
+              <span *ngIf="timeCounter < 1">&nbsp;لم تستلم الرمز؟ &nbsp;<b style="color: #6D1442;font-weight: bold"
+                  (click)="verifyMobile()">إعادة إرسال</b></span>
+              <span *ngIf="timeCounter > 1">قم بإدخال كود التحقق خلال {{'00:' + (timeCounter > 9 ? timeCounter : '0' +
+                timeCounter)}}</span>
+            </div>
+          </div>
+          <br>
+
+
+        </div>
+      </div>
+
+      <!-- prod close icon -->
+      <!-- <img src="/assets/images/login/close-circle.svg" (click)="handleOkMiddle()" style="position: absolute; top: 16px; left: 16px" alt=""> -->
+      <!-- dev close icon -->
+      <img src="/assets/images/login/close-circle.svg" (click)="handleOkMiddle()"
+        style="position: absolute; top: 16px; left: 16px" alt="">
+    </ng-container>
+  </nz-modal>
+  <!-- end of login modal -->
+
+  <!-- <nz-sider class="menu-sidebar"
+            nzCollapsible
+            nzWidth="0px"
+            nzBreakpoint="md"
+            [(nzCollapsed)]="isCollapsed"
+            [nzTrigger]="null"> -->
+  <!-- <div class="sidebar-logo"> -->
+  <!-- <a href="https://ng.ant.design/" target="_blank">
+        <img src="https://ng.ant.design/assets/img/logo.svg" alt="logo">
+        <h1>Ant Design Of Angular</h1>
+      </a>
+    </div>
+    <ul nz-menu nzMode="inline" [nzInlineCollapsed]="isCollapsed">
+      <li nz-submenu nzOpen nzTitle="Dashboard" nzIcon="dashboard">
+        <ul>
+          <li nz-menu-item nzMatchRouter>
+            <a routerLink="/welcome">Welcome</a>
+          </li>
+          <li nz-menu-item nzMatchRouter>
+            <a>Monitor</a>
+          </li>
+          <li nz-menu-item nzMatchRouter>
+            <a>Workplace</a>
+          </li>
+        </ul>
+      </li>
+      <li nz-submenu nzOpen nzTitle="Form" nzIcon="form">
+        <ul>
+          <li nz-menu-item nzMatchRouter>
+            <a>Basic Form</a>
+          </li>
+        </ul>
+      </li>
+    </ul> -->
+  <!-- </nz-sider> -->
+  <!-- <nz-layout> -->
+  <!-- <nz-header> -->
+  <div class="app-header">
+    <div nz-row nzAlign="middle" class="web-contact-bar">
+      <div nz-col nzXs="24" nzSm="24" nzMd="12" nzLg="12" nzXl="12" style="text-align: center">
+        <a
+          href="https://appgallery.huawei.com/app/C102802029">
+          <img src="/assets/images/header/app-gallery.svg" alt="" style="margin: 0 4px">
+          <Link />
+        </a>
+        <a href="https://apps.apple.com/us/app/turki-dabayh/id1115628569">
+          <img src="/assets/images/header/apple.svg" alt="" style="margin: 0 4px">
+          <Link />
+        </a>
+        <a href="https://play.google.com/store/apps/details?id=com.digishapes.turkieshop&hl=ar&gl=US">
+          <img src="/assets/images/header/google-play.png" alt="" style="margin: 0 4px">
+          <Link />
+        </a>
+
+
+        <img src="/assets/images/header/line.png" height="10" alt="" style="margin: 0 10px;">
+
+        <a
+          href="https://api.whatsapp.com/send?phone={{country_iso_code == 'SA' ? '966500852759' : '971566064000'}}&text=هلا%20تركي%20للذبائح%20جايكم%20من%20الموقع%20,%20وعندي%20استفسار">
+          <img src="/assets/images/header/whatsapp.svg" alt="" style="margin: 0 4px">
+          <Link />
+        </a>
+
+        <a href="{{'https://www.snapchat.com/add/TORKI666008'}}">
+          <img src="/assets/images/header/snap-header.svg" alt="" style="margin: 0 4px">
+          <Link />
+        </a>
+
+        <a
+          href="{{country_iso_code == 'SA' ? 'https://www.instagram.com/turki_dbh/' : 'https://www.instagram.com/turki.dbh/'}}">
+          <img src="/assets/images/header/instagram.svg" alt="" style="margin: 0 4px">
+          <Link />
+        </a>
+
+        <a href="https://x.com/turki_dabayh">
+          <img src="/assets/images/header/x.png" alt="" style="margin: 0 4px;width: 3%;">
+          <Link />
+        </a>
+      </div>
+
+      <div nz-col nzXs="24" nzSm="24" nzMd="12" nzLg="12" nzXl="12" style="text-align: center">
+        <a routerLink="/about-us">
+          <span dir="ltr">من نحن؟</span>
+          <Link />
+          &nbsp;
+        </a>
+
+        <a href="{{country_iso_code == 'AE' ? 'tel:+971563055557' : 'tel:+9668001110103'}}">
+          <img src="/assets/images/header/line.png" height="10" alt="">
+          &nbsp;
+          <span dir="ltr">{{country_iso_code == 'AE' ? '+971563055557' : '+9668001110103'}}</span>
+          <Link />
+          <img src="/assets/images/header/customer-support.svg" alt="" style="margin: 0 7px">
+        </a>
+      </div>
+    </div>
+    <!--  -->
+    <!--  mobile contact-bar  -->
+    <div nz-row nzAlign="middle" class="mobile-contact-bar">
+      <div nz-col nzXs="24" nzSm="24" nzMd="12" nzLg="12" nzXl="12">
+        <!-- <a routerLink="/">
+              <img src="/assets/images/header/app-gallery.svg" alt="" style="margin: 0 4px">
+              <Link />
+            </a> -->
+
+        <a
+          href="https://appgallery.huawei.com/app/C102802029">
+          <img src="/assets/images/header/app-gallery.svg" alt="" style="margin: 0 4px">
+          <Link />
+        </a>
+
+        <a href="https://apps.apple.com/us/app/turki-dabayh/id1115628569">
+          <img src="/assets/images/header/apple.svg" alt="" style="margin: 0 4px">
+          <!-- <img src="/assets/images/header/apple.svg" alt="" style="margin: 0 4px"> -->
+          <Link />
+        </a>
+        <a href="https://play.google.com/store/apps/details?id=com.digishapes.turkieshop&hl=ar&gl=US">
+          <img src="/assets/images/header/google-play.png" alt="" style="margin: 0 4px">
+          <!-- <img src="/assets/images/header/google-play.png" alt="" style="margin: 0 4px"> -->
+          <Link />
+        </a>
+
+
+
+        <!-- line prod -->
+        <!-- <img src="/assets/images/header/line.png" height="10" alt="" style="margin: 0 10px;"> -->
+        <!-- line dev -->
+        <img src="/assets/images/header/line.png" height="10" alt="" style="margin: 0 10px;">
+
+
+
+        <a
+          href="https://api.whatsapp.com/send?phone={{country_iso_code == 'SA' ? '966500852759' : '971566064000'}}&text=هلا%20تركي%20للذبائح%20جايكم%20من%20الموقع%20,%20وعندي%20استفسار">
+          <img src="/assets/images/header/whatsapp.svg" alt="" style="margin: 0 4px">
+          <!-- <img src="/assets/images/header/whatsapp.svg" alt="" style="margin: 0 4px"> -->
+          <Link />
+        </a>
+
+        <a href="{{'https://www.snapchat.com/add/TORKI666008'}}">
+          <img src="/assets/images/header/snap-header.svg" alt="" style="margin: 0 4px">
+          <!-- <img src="/assets/images/header/instagram.svg" alt="" style="margin: 0 4px"> -->
+          <Link />
+        </a>
+
+        <a
+          href="{{country_iso_code == 'SA' ? 'https://www.instagram.com/turki_dbh/' : 'https://www.instagram.com/turki.dbh/'}}">
+          <img src="/assets/images/header/instagram.svg" alt="" style="margin: 0 4px">
+          <!-- <img src="/assets/images/header/instagram.svg" alt="" style="margin: 0 4px"> -->
+          <Link />
+        </a>
+        <!-- snapshot: https://www.snapchat.com/add/TORKI666008 -->
+        <!-- <a routerLink="/">
+              <img src="../../assets/images/header/facebook.svg" alt="" style="margin: 0 4px">
+              <img src="/assets/images/header/facebook.svg" alt="" style="margin: 0 4px">
+              <Link />
+            </a> -->
+        <a href="https://x.com/turki_dabayh">
+          <img src="/assets/images/header/x.png" alt="" style="margin: 0 4px">
+          <Link />
+        </a>
+      </div>
+
+      <div nz-col nzXs="24" nzSm="24" nzMd="12" nzLg="12" nzXl="12">
+        <!-- <span class="header-trigger" (click)="toggleDirection()">
+              <i nz-icon nzType="translation" nzTheme="outline"></i>
+            </span> -->
+        <!-- <div nz-col nzXs="24" nzSm="24" nzMd="12" nzLg="12" nzXl="12" style="text-align: center">  -->
+        <a routerLink="/about-us">
+          <span dir="ltr">من نحن؟</span>
+          <Link />
+          &nbsp;
+        </a>
+        <!-- <a href="https://vision.turkidabayeh.com/ar/v2030/leadership-message/index.html" target="_blank">
+                <img src="/assets/images/header/line.png" height="10" alt="">
+
+                كلمة المؤسس
+
+              </a> -->
+        <!-- <a (click)="createMessage('success')"> -->
+        <a href="{{country_iso_code == 'AE' ? 'tel:+971563055557' : 'tel:+9668001110103'}}">
+
+          <!-- line prod -->
+          <!-- <img src="/assets/images/header/line.png" height="10" alt=""> -->
+          <!-- line dev -->
+          <img src="/assets/images/header/line.png" height="10" alt="">
+          &nbsp;
+          <span dir="ltr">{{country_iso_code == 'AE' ? '+971563055557' : '+9668001110103'}}</span>
+          <Link />
+
+          <!-- support prod -->
+          <!-- <img src="/assets/images/header/customer-support.svg" alt="" style="margin: 0 7px"> -->
+          <!-- support dev -->
+          <img src="/assets/images/header/customer-support.svg" alt="" style="margin: 0 7px">
+        </a>
+        <!-- </div> -->
+      </div>
+    </div>
+    <!--  -->
+    <!-- web nav-bar -->
+    <div nz-row style="height: 9em" nzAlign="middle" class="web-nav-bar">
+      <div nz-col nzXs="24" nzSm="12" nzMd="12" nzLg="12" nzXl="12" style="text-align: end">
+        <!-- <a href="https://ng.ant.design/" target="_blank" class="delivery-tab"> -->
+        <!-- <span dir="ltr" style="display: -block;line-height: normal;line-height: 2rem;width">0500000000<b>vpfodskgpfodsk</b></span> -->
+        <!-- <span dir="ltr">0500000000</span> -->
+        <!-- <Link /> -->
+        <!-- <img src="/assets/images/header/customer-support.svg" alt="" style="margin: 0 7px"> -->
+        <!-- </a> -->
+
+        <div nz-row nzAlign="middle">
+          <!-- <div nz-col nzXs="5" nzSm="5" nzMd="5" nzLg="5" nzXl="5" ></div> -->
+          <div nz-col nzXs="11" nzSm="11" nzMd="11" nzLg="11" nzXl="11" style="text-align: center">
+            <!-- <a *ngIf="isLoggedIn" href="#/user/account" style="background: rgba(255, 255, 255, 0.178);padding: 11px;position: relative;border-radius: 888px;">
+                  <Link />
+                  <img src="/assets/images/header/logout.png" alt="" style="position: relative;width: 20px;">
+                </a>
+                {{isLoggedIn ? '&nbsp;' : ''}} -->
+            <a *ngIf="!isLoggedIn" (click)="handleToggleModal()"
+              style="background: rgba(255, 255, 255, 0.178);padding: 11px;position: relative;border-radius: 888px;">
+              <Link />
+              <img src="/assets/images/header/login.png" alt="" style="position: relative;width: 20px;">
+            </a>
+            {{!isLoggedIn ? '&nbsp;' : ''}}
+            <a *ngIf="isLoggedIn" routerLink="/user/account"
+              style="background: rgba(255, 255, 255, 0.178);padding: 11px;position: relative;border-radius: 888px;">
+              <Link />
+              <img src="/assets/images/header/my-account.svg" alt="" style="position: relative;width: 20px;">
+            </a>
+            {{isLoggedIn ? '&nbsp;' : ''}}
+            <a *ngIf="isLoggedIn" routerLink="/favorites"
+              style="background: rgba(255, 255, 255, 0.178);padding: 11px;position: relative;border-radius: 888px;">
+              <!-- <img src="/assets/images/header/line.png" height="10" alt=""> -->
+              <a
+                style="position: absolute; top: -10px;z-index: 10;right: -5px;background: rgba(211, 27, 27, 0.877);padding: 4px;font-size: 7px;border-radius: 888px;width: 23px;height: 23px;text-align: center;color: white;">{{favorites.length}}</a>
+              <Link />
+              <img src="/assets/images/header/favorite.svg" alt="" style="position: relative;width: 20px;">
+            </a>
+            {{isLoggedIn ? '&nbsp;' : ''}}
+            <a *ngIf="isLoggedIn" routerLink="/products/cart"
+              style="background: rgba(255, 255, 255, 0.178);padding: 11px;position: relative;border-radius: 888px;">
+              <!-- <img src="/assets/images/header/line.png" height="10" alt=""> -->
+              <a
+                style="position: absolute; top: -10px;z-index: 10;right: -5px;background: rgba(211, 27, 27, 0.877);padding: 4px;font-size: 7px;border-radius: 888px;width: 23px;height: 23px;text-align: center;color: white;">{{products.length}}</a>
+              <Link />
+              <img src="/assets/images/header/cart.svg" alt="" style="position: relative;width: 20px;">
+            </a>
+          </div>
+          <div nz-col nzXs="6" nzSm="6" nzMd="6" nzLg="6" nzXl="6" (click)="handleToggleBranchModal()">
+            <div nz-row nzAlign="middle" class="branch-tab">
+              <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="17" style="padding: 0 8px;text-align: center">
+                <small style="text-align: end;font-weight: bold;font-size: 13px">استلام من الفرع</small><br>
+                <small>اختر الفرع</small>
+              </div>
+              <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="7" style="text-align: center">
+                <a routerLink="" style="background:rgba(255, 255, 255, 0.178);padding: 7px;border-radius: 100px;">
+                  <img src="/assets/images/header/branch.svg" style="width: 18px;">
+                </a>
+              </div>
+            </div>
+          </div>
+          &nbsp;&nbsp;
+          <!-- <div nz-col nzXs="1" nzSm="1" nzMd="1" nzLg="1" nzXl="1" ></div> -->
+          <div nz-col nzXs="6" nzSm="6" nzMd="6" nzLg="6" nzXl="6" (click)="handleToggleAddressModal()">
+            <div nz-row nzAlign="middle" class="delivery-tab">
+              <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="17" style="padding: 0 8px;text-align: center">
+                <small style="text-align: end;font-weight: bold;font-size: 13px">التوصيل لعنوان</small><br>
+                <small>اختر العنوان</small>
+              </div>
+              <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="7" style="text-align: center">
+                <a routerLink="" style="background:rgba(255, 255, 255, 0.178);padding: 7px;border-radius: 100px;">
+                  <img src="/assets/images/header/home-delivery.svg" style="width: 18px;">
+                </a>
+              </div>
+            </div>
+          </div>
+          <!-- <div nz-col nzXs="6" nzSm="6" nzMd="6" nzLg="6" nzXl="6" ></div> -->
+        </div>
+        <!-- <a href="https://ng.ant.design/" target="_blank" class="pickup-tab">
+              <span dir="ltr" style="margin-left: 12px">0500000000</span>
+              <Link />
+              <img src="/assets/images/header/customer-support.svg" alt="" style="margin: 0 7px">
+            </a> -->
+      </div>
+
+      <div nz-col nzXs="24" nzSm="12" nzMd="12" nzLg="12" nzXl="12" style="text-align: start">
+        <!-- <span class="header-trigger" (click)="toggleTheme()">
+              <i nz-icon nzType="star" nzTheme="outline"></i>
+            </span> -->
+
+        <div nz-row nzAlign="middle">
+          <div nz-col nzXs="24" nzSm="12" nzMd="15" nzLg="15" nzXl="15">
+            <!-- <nz-input-group nzSearch nzSize="large" [nzSuffix]="suffixIconSearch" [nzAddOnAfter]="prefixButton" >
+                  <input type="text" nz-input placeholder="input search text" dir="ltr" />
+                  <ng-template #prefixButton dir="rtl">
+                    <button nz-button nzType="primary" nzSize="large" nzSearch class="search-btn" dir="rtl">Search</button>
+                  </ng-template>
+                  <ng-template #suffixIconSearch dir="ltr">
+                    <i nz-icon nzType="search" dir="ltr"></i>
+                  </ng-template>
+                </nz-input-group> -->
+            <nz-input-group [nzSuffix]="suffixTemplateInfo" [nzPrefix]="prefixTemplateUser">
+              <input type="text" nz-input placeholder="...ابحث عن منتج معين" [(ngModel)]="searchTxt" />
+            </nz-input-group>
+            <div *ngIf="search_results.length"
+              style="width: 95%; position: absolute;background: white;z-index: 10;-webkit-box-shadow: 0px 7px 23px -10px rgba(0,0,0,0.75);-moz-box-shadow: 0px 7px 23px -10px rgba(0,0,0,0.75);box-shadow: 0px 7px 23px -10px rgba(0,0,0,0.75);"
+              class="DivWithScroll" dir="rtl">
+              <!-- <div style="width: 100%"> -->
+              <div *ngFor="let result of search_results" style="text-align: right;padding: 10px;border: 1px solid #eee"
+                (click)="openProduct(result.id)">
+                <p>{{result.name_ar}}</p>
+              </div>
+              <!-- </div> -->
+            </div>
+            <ng-template #prefixTemplateUser><button class="search-btn"
+                (click)="searchText()">بحث</button></ng-template>
+            <ng-template #suffixTemplateInfo>
+              <i nz-icon nz-tooltip nzTooltipTitle="Extra information" class="search-icon" nzType="search"></i>
+            </ng-template>
+
+
+          </div>
+          <div nz-col nzXs="24" nzSm="12" nzMd="9" nzLg="9" nzXl="9" style="text-align: center">
+            <a routerLink="/"><img src="assets/images/footer/logon.png" width="115" alt=""></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--  -->
+    <!-- mobile nav-bar -->
+    <div nz-row style="padding: 10px 0" nzAlign="middle" class="mobile-nav-bar">
+      <div nz-col nzXs="24" nzSm="24" nzMd="12" nzLg="12" nzXl="12">
+        <div style="padding: 5px 19px;">
+          <a routerLink="/"><img src="assets/images/footer/logon.png" width="145" alt=""></a>
+        </div>
+        <br>
+        <br>
+        <div nz-row nzAlign="middle">
+          <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24" style="text-align: center">
+            <!-- <a href="#/user/account" style="background: rgba(255, 255, 255, 0.178);padding: 11px;position: relative;border-radius: 888px;">
+                  <Link />
+                  <img src="/assets/images/header/logout.png" alt="" style="position: relative;width: 20px;">
+                </a>
+                &nbsp; -->
+            <a *ngIf="!isLoggedIn" (click)="handleToggleModal()"
+              style="background: rgba(255, 255, 255, 0.178);padding: 11px;position: relative;border-radius: 888px;">
+              <Link />
+              <img src="/assets/images/header/login.png" alt="" style="position: relative;width: 20px;">
+            </a>
+            {{!isLoggedIn ? '&nbsp;' : ''}}
+            <a *ngIf="isLoggedIn" routerLink="/user/account"
+              style="background: rgba(255, 255, 255, 0.178);padding: 11px;position: relative;border-radius: 888px;">
+              <Link />
+              <img src="/assets/images/header/my-account.svg" alt="" style="position: relative;width: 20px;">
+            </a>
+            {{isLoggedIn ? '&nbsp;' : ''}}
+            <a *ngIf="isLoggedIn" routerLink="/favorites"
+              style="background: rgba(255, 255, 255, 0.178);padding: 11px;position: relative;border-radius: 888px;">
+              <!-- <img src="/assets/images/header/line.png" height="10" alt=""> -->
+              <a
+                style="position: absolute; top: -10px;z-index: 10;right: -5px;background: rgba(211, 27, 27, 0.877);padding: 4px;font-size: 7px;border-radius: 888px;width: 23px;height: 23px;text-align: center;color: white;">{{favorites.length}}</a>
+              <Link />
+              <img src="/assets/images/header/favorite.svg" alt="" style="position: relative;width: 20px;">
+            </a>
+            {{isLoggedIn ? '&nbsp;' : ''}}
+            <a *ngIf="isLoggedIn" routerLink="/products/cart"
+              style="background: rgba(255, 255, 255, 0.178);padding: 11px;position: relative;border-radius: 888px;">
+              <!-- <img src="/assets/images/header/line.png" height="10" alt=""> -->
+              <a
+                style="position: absolute; top: -10px;z-index: 10;right: -5px;background: rgba(211, 27, 27, 0.877);padding: 4px;font-size: 7px;border-radius: 888px;width: 23px;height: 23px;text-align: center;color: white;">{{products.length}}</a>
+              <Link />
+              <img src="/assets/images/header/cart.svg" alt="" style="position: relative;width: 20px;">
+            </a>
+          </div>
+        </div>
+        <br>
+      </div>
+      <!-- <div nz-col nzXs="24" nzSm="12" nzMd="12" nzLg="12" nzXl="12">
+            <p>Hello There</p>
+          </div> -->
+      <div nz-col nzXs="24" nzSm="24" nzMd="12" nzLg="12" nzXl="12">
+        <div nz-row nzAlign="middle" style="margin: 0px auto !important">
+          <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24" style="padding: 5px 19px">
+            <!-- <nz-input-group nzSearch nzSize="large" [nzSuffix]="suffixIconSearch" [nzAddOnAfter]="prefixButton" >
+                  <input type="text" nz-input placeholder="input search text" dir="ltr" />
+                  <ng-template #prefixButton dir="rtl">
+                    <button nz-button nzType="primary" nzSize="large" nzSearch class="search-btn" dir="rtl">Search</button>
+                  </ng-template>
+                  <ng-template #suffixIconSearch dir="ltr">
+                    <i nz-icon nzType="search" dir="ltr"></i>
+                  </ng-template>
+                </nz-input-group> -->
+            <nz-input-group [nzSuffix]="suffixTemplateInfo" [nzPrefix]="prefixTemplateUser">
+              <input type="text" nz-input placeholder="...ابحث عن منتج معين" [(ngModel)]="searchTxt" />
+            </nz-input-group>
+            <div *ngIf="search_results.length"
+              style="width: 95%; position: absolute;background: white;z-index: 10;-webkit-box-shadow: 0px 7px 23px -10px rgba(0,0,0,0.75);-moz-box-shadow: 0px 7px 23px -10px rgba(0,0,0,0.75);box-shadow: 0px 7px 23px -10px rgba(0,0,0,0.75);"
+              class="DivWithScroll" dir="rtl">
+              <!-- <div style="width: 100%"> -->
+              <div *ngFor="let result of search_results" style="text-align: right;padding: 10px;border: 1px solid #eee"
+                (click)="openProduct(result.id)">
+                <p>{{result.name_ar}}</p>
+              </div>
+              <!-- </div> -->
+            </div>
+            <ng-template #prefixTemplateUser><button class="search-btn"
+                (click)="searchText()">بحث</button></ng-template>
+            <ng-template #suffixTemplateInfo>
+              <i nz-icon nz-tooltip nzTooltipTitle="Extra information" class="search-icon" nzType="search"></i>
+            </ng-template>
+          </div>
+          <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24" style="text-align: center">
+            <!-- anything can go here -->
+          </div>
+        </div>
+        <!--  -->
+        <div nz-row nzAlign="middle" style="padding: 5px 19px;">
+          <!-- <div nz-col nzXs="5" nzSm="5" nzMd="5" nzLg="5" nzXl="5" ></div> -->
+          <div nz-col nzXs="11" nzSm="11" nzMd="11" nzLg="11" nzXl="11" (click)="handleToggleBranchModal()">
+            <div nz-row nzAlign="middle" class="branch-tab">
+              <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="17" style="padding: 0px 0px;text-align: center">
+                <small style="text-align: end;font-weight: bold;font-size: 13px">استلام من الفرع</small><br>
+                <small>اختر الفرع</small>
+              </div>
+              <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="7" style="padding: 16px 0px;text-align: center">
+                <!-- <br> -->
+                <a routerLink="" style="background:rgba(255, 255, 255, 0.178);padding: 15px;border-radius: 100px;">
+                  <img src="/assets/images/header/branch.svg" style="width: 18px;">
+                </a>
+              </div>
+            </div>
+          </div>
+          <div nz-col nzXs="2" nzSm="2" nzMd="2" nzLg="2" nzXl="2"></div>
+          <!-- <div nz-col nzXs="1" nzSm="1" nzMd="1" nzLg="1" nzXl="1" ></div> -->
+          <div nz-col nzXs="11" nzSm="11" nzMd="11" nzLg="11" nzXl="11" (click)="handleToggleAddressModal()">
+            <div nz-row nzAlign="middle" class="delivery-tab">
+              <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="7" style="padding: 0px 0px;text-align: center">
+                <small style="text-align: end;font-weight: bold;font-size: 13px">التوصيل لعنوان</small><br>
+                <small>اختر العنوان</small>
+              </div>
+              <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="7" style="padding: 16px 0px;text-align: center">
+                <a routerLink="" style="background:rgba(255, 255, 255, 0.178);padding: 15px;border-radius: 100px;">
+                  <img src="/assets/images/header/home-delivery.svg" style="width: 18px;">
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <div nz-row> <a (click)="toggleTheme()">Themer</a></div> -->
+    <!--  -->
+    <!-- web categories fast links -->
+    <div *ngIf="categories.length" nz-row nzAlign="middle" class="fastlink-bar animate__animated animate__fadeIn">
+      <div nz-col nzXs="18" nzSm="18" nzMd="18" nzLg="18" nzXl="18" style="text-align: end">
+        &nbsp;
+        &nbsp;
+        <span nz-typography>
+          <a (click)="openCategory(categories[0].id)">
+            {{categories.length ? categories[0].type_ar : ''}}
+            <Link />
+          </a>
+        </span>
+        &nbsp;
+        &nbsp;
+        <span nz-typography *ngIf="categories.length > 1">
+          <a (click)="openCategory(categories[1].id)">
+            {{categories.length ? categories[1].type_ar : ''}}
+            <Link />
+          </a>
+        </span>
+        &nbsp;
+        &nbsp;
+        <span nz-typography *ngIf="categories.length > 2">
+          <a (click)="openCategory(categories[2].id)">
+            {{categories.length ? categories[2].type_ar : ''}}
+            <Link />
+          </a>
+        </span>
+        &nbsp;
+        &nbsp;
+        <span nz-typography *ngIf="categories.length > 3">
+          <a (click)="openCategory(categories[3].id)">
+            {{categories.length ? categories[3].type_ar : ''}}
+            <Link />
+          </a>
+        </span>
+        &nbsp;
+        &nbsp;
+        <span nz-typography *ngIf="categories.length > 4">
+          <a (click)="openCategory(categories[4].id)">
+            {{categories.length ? categories[4].type_ar : ''}}
+            <Link />
+          </a>
+        </span>
+        &nbsp;
+        &nbsp;
+        <span nz-typography>
+          <a (click)="openCategory(categories[5].id)">
+            <!-- {{categories.length ? categories[5].type_ar : ''}} -->
+            <Link />
+          </a>
+        </span>
+        &nbsp;
+        &nbsp;
+        <!-- <span nz-typography>
+              <a href="https://ng.ant.design/" target="_blank">
+                {{categories[6].type_ar}}
+                <Link />
+              </a>
+            </span>
+            &nbsp;
+            &nbsp;
+            <span nz-typography>
+              <a href="https://ng.ant.design/" target="_blank">
+                {{categories[7].type_ar}}
+                <Link />
+              </a>
+            </span>
+            &nbsp;
+            &nbsp; -->
+
+      </div>
+
+      <div nz-col nzXs="6" nzSm="6" nzMd="6" nzLg="6" nzXl="6" style="text-align: center">
+        <span nz-typography>
+          <a routerLink="/products/list">
+            <b>كل الفئات</b>
+            <Link />
+          </a>
+        </span>
+      </div>
+    </div>
+    <!-- end web categories fast links -->
+    <br class="fastlink-bar-mobile">
+    <div nz-row nzAlign="space-between" nzJustify="center" class="fastlink-bar-mobile">
+      <div nz-col nzXs="12" nzSm="12" nzMd="12" nzLg="12" nzXl="12" style="text-align: start">
+        <a routerLink="/products/list"><img src="/assets/icons/menu.png" width="28" height="28" alt=""></a>
+      </div>
+
+      <div nz-col nzXs="12" nzSm="12" nzMd="12" nzLg="12" nzXl="12" style="text-align: end">
+        <span nz-typography>
+          <a routerLink="/products/list">
+            <b>جميع الأقسام</b>
+            <Link />
+          </a>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- </nz-header> -->
+
+  <nz-content>
+    <!-- <div class="inner-content"> -->
+    <router-outlet></router-outlet>
+    <!-- </div> -->
+  </nz-content>
+  <nz-footer class="app-footer">
+    <div nz-row nzAlign="middle" nzJustify="center" dir="rtl">
+      <div nz-col nzXs="0" nzSm="0" nzMd="6" nzLg="6" nzXl="6" style="text-align: center">
+        <a routerLink="/"><img src="assets/images/footer/logon.png" width="145" alt=""></a>
+      </div>
+      <div nz-col nzXs="24" nzSm="24" nzMd="0" nzLg="0" nzXl="0" style="text-align: center">
+        <a routerLink="/"><img src="assets/images/footer/logon.png" width="145" alt=""></a>
+      </div>
+
+      <div *ngIf="isLoggedIn" nz-col nzXs="24" nzSm="24" nzMd="5" nzLg="4" nzXl="4"
+        style="text-align: start;color: white;margin: 15px 0;">
+        <b>حسابي</b><br><br>
+        <div style="text-align: start;">
+          <a *ngIf="isLoggedIn" routerLink="/user/account" style="color: #d6d6d6">طلباتي</a><br>
+          <a *ngIf="isLoggedIn" routerLink="/products/cart" style="color: #d6d6d6">عربة التسوق</a><br>
+          <a *ngIf="isLoggedIn" routerLink="/favorites" style="color: #d6d6d6">المفضلة</a><br>
+          <!-- <a routerLink="/" style="color: #d6d6d6">النقاط والهدايا</a><br> -->
+        </div>
+      </div>
+
+      <div nz-col nzXs="24" nzSm="24" nzMd="5" nzLg="4" nzXl="4" style="text-align: start;color: white;margin: 15px 0">
+        <b>القائمة</b><br><br>
+        <div style="text-align: start">
+          <a routerLink="/about-us" style="color: #d6d6d6">من نحن؟</a><br>
+          <!-- <a routerLink="/" style="color: #d6d6d6">المنتجات</a><br> -->
+          <!-- +971563055557 uae -->
+          <!-- +9668001110103 ksa -->
+          <a href="https://api.whatsapp.com/send?phone={{country_iso_code == 'SA' ? '966500852759' : '971566064000'}}&text=هلا%20تركي%20للذبائح%20جايكم%20من%20الموقع%20,%20وعندي%20استفسار"
+            style="color: #d6d6d6">اتصل بنا</a><br>
+          <a href="https://almaraacompany.com/turki-app/privacy-policy.html" style="color: #d6d6d6">الشروط
+            والأحكام</a><br>
+          <!-- <a href="https://almaraacompany.com/almaraa/terms-of-use.html" style="color: #d6d6d6">الشروط والأحكام</a><br> -->
+          <a href="https://almaraacompany.com/turki-app/privacy-policy.html" style="color: #d6d6d6">سياسة الخصوصية</a><br>
+        </div>
+      </div>
+
+      <div nz-col nzXs="24" nzSm="24" nzMd="8" nzLg="8" nzXl="8" style="text-align: start;color: white;margin: 15px 0">
+        <b>الدعم والمساعدة</b><br><br>
+        <p style="color: #d6d6d6">تواصل معنا على السوشال ميديا</p>
+        <div>
+
+          <a
+            href="{{country_iso_code == 'SA' ? 'https://www.instagram.com/turki_dbh/' : 'https://www.instagram.com/turki.dbh/'}}">
+            <!-- insta prod -->
+            <!-- <img src="/assets/images/footer/footer-instagram.svg" alt=""> -->
+            <!-- insta dev -->
+            <img src="/assets/images/footer/footer-instagram.svg" alt="">
+          </a>&nbsp;
+
+          <a
+            href="https://api.whatsapp.com/send?phone={{country_iso_code == 'SA' ? '966500852759' : '971566064000'}}&text=هلا%20تركي%20للذبائح%20جايكم%20من%20الموقع%20,%20وعندي%20استفسار">
+            <!-- whatsapp prod -->
+            <!-- <img src="/assets/images/footer/footer-whatsapp.svg" alt=""> -->
+            <!-- whatsapp dev -->
+            <img src="/assets/images/footer/footer-whatsapp.svg" alt="">
+          </a>&nbsp;
+
+          <!-- <a routerLink="/"><img src="../../assets/images/footer/footer-facebook.svg" alt=""></a>&nbsp; -->
+
+          <a href="{{'https://www.snapchat.com/add/TORKI666008'}}">
+            <!-- snap prod -->
+            <!-- <img src="/assets/images/footer/footer-facebook.svg" alt=""> -->
+            <!-- snap dev -->
+            <img src="/assets/images/footer/snapchat.svg" alt="">
+          </a>&nbsp;
+
+          <a href="https://x.com/turki_dabayh">
+            <!-- twitter prod -->
+            <!-- <img src="/assets/images/footer/footer-twitter.svg" alt=""> -->
+            <!-- twitter dev -->
+            <img src="/assets/images/header/x.png" alt="" style="width:6%">
+          </a>&nbsp;
+
+        </div>
+      </div>
+    </div>
+    <br>
+    <hr style="border: 1px solid rgba(214, 214, 214, 0.212);width: 80%">
+    <br>
+    <br>
+    <br>
+
+    <div nz-row nzAlign="middle" nzJustify="center" style="text-align: center;color: white;font-size: 13px;">
+      <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24">
+        <p>جميع الحقوق محفوظة ©️ 2025 All Rights Reserved &copy; 2025</p>
+      </div>
+    </div>
+    <!-- ksdalfdjopsk -->
+  </nz-footer>
+  <!-- </nz-layout> -->
+</nz-layout>

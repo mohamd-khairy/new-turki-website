@@ -1,0 +1,332 @@
+<!--  main color #6D1442 -->
+<div
+  style="padding: 15px; position: fixed;bottom: 13px; right: 15px; background: #6D1442;z-index: 100;border: 5px dashed #ebce6d;border-radius: 999px;"
+  (click)="showModalMiddle()">
+  <i nz-icon nzType="mobile" style="font-size: 26px;color: white;"></i>
+</div>
+
+<!-- modal -->
+<nz-modal [(nzVisible)]="isVisibleMiddle" nzTitle="" nzCentered (nzOnOk)="handleOkMiddle()"
+  (nzAfterOpen)="handleOpenModal()" nzFooter=" " nzWidth="90%" nzClosable="false">
+  <ng-container *nzModalContent>
+    <div nz-row style="width: 100%;height: 45px;background: #6D1442; border-radius: 11px 11px 0 0" nzAlign="middle"
+      dir="rtl">
+      <div nz-col nzXs="1" nzSm="1" nzMd="1" nzLg="1" nzXl="1" style="font-size: 18px;color: white;padding: 0 16px;"
+        (click)="handleToggleModal()">
+        <i nz-icon nzType="close" style=""></i>
+      </div>
+      <div nz-col nzXs="22" nzSm="22" nzMd="22" nzLg="22" nzXl="22" style="text-align: center">
+        <b style="text-align: center;color: white;">إستمتع بتجربة متكاملة من خلال التطبيق</b>
+      </div>
+    </div>
+    <div style="text-align: center;padding: 25px 0">
+      <img src="/assets/images/home/mockup-download.png" width="230" height="220" alt="">
+    </div>
+    <div style="text-align: center;padding: 16px">
+      <a nz-button nzType="primary" href="https://bit.ly/3tB2qdu" target="_parent" nzBlock nzSize="large"
+        nzShape="round" dir="rtl">
+        <i nz-icon nzType="download" style="font-size: 20px;"></i>
+        حمل التطبيق
+      </a>
+      <br>
+      <br>
+      <a nz-button nzType="primary"
+        href="https://api.whatsapp.com/send?phone={{country_iso_code == 'SA' ? '966500852759' : '971566064000'}}&text=هلا%20تركي%20للذبائح%20جايكم%20من%20الموقع%20,%20وعندي%20استفسار"
+        target="_parent" nzBlock nzSize="large" nzShape="round" style="background: #ebce6d;border: none" dir="rtl">
+        <i nz-icon nzType="whats-app" style="font-size: 20px;"></i>
+        تواصل لطلب المساعدة
+      </a>
+    </div>
+  </ng-container>
+</nz-modal>
+
+<!-- content -->
+<ngu-carousel #myCarousel [inputs]="carouselConfig" (onMove)="onmoveFn($event)"
+  (carouselLoad)="carouselTileLoad($event)" [dataSource]="carouselItems"
+  class="web-slider animate__animated animate__fadeIn animate__faster">
+
+  <div *nguCarouselDef="let item;" class="item">
+    <div style="position: absolute; width: 100%; height: 100%; background: rgb(2,0,36);
+        background: linear-gradient(5deg, #6D1442 0%, #6D14429a 40%, rgba(0, 213, 255, 0) 100%);"></div>
+
+    <div class="tile"
+      style="background: url({{item.src}});height:  73vh;background-repeat: no-repeat;background-size: cover;">
+      <!-- <img src="{{item}}" alt=""> -->
+      <!-- <div *ngFor="let slide of carouselItems; let i = index" style="width: 100%;"> -->
+      <h1 style="text-align: center;padding-top: 30vh;font-weight: bold;color: white;font-size: 40px"
+        [ngClass]="['animate__animated', 'animate__fadeInUp']" #slideTitle>{{item.title}}</h1>
+      <!-- <div style="text-align: right;padding-top: 1%;padding-right: 13%;">
+                    <button nz-button nzSize="large" nzType="primary" dir="rtl">{{item.btn_title}}</button>
+                </div> -->
+      <!-- </div>  -->
+    </div>
+  </div>
+  <!-- primary color 472f62 -->
+  <!-- <div NguCarouselNext class="rightRs"></div>
+
+  <div NguCarouselPrev class="leftRs"></div> -->
+
+  <ul class="myPoint" NguCarouselPoint>
+    <li *ngFor="let jam of myCarousel.pointNumbers; let j = index" [class.active]="j==myCarousel.activePoint"
+      (click)="myCarousel.moveTo(j)"></li>
+  </ul>
+</ngu-carousel>
+
+<!-- categories section -->
+<div style="padding: 16px" *ngIf="categories.length">
+  <br>
+  <!-- <h1 id="header-text" >It's Tuesday.</h1> -->
+  <h1 style="font-weight: bold;text-align: center;" class="animate__animated animate__fadeInUp">وش ودك تطلب اليوم؟</h1>
+  <p style="text-align: center;" class="animate__animated animate__fadeInUp animate__delay-1s">اطلب الوجبة المفضلة لديك
+    من فئات مختلفة</p>
+  <br>
+  <div nz-row nzJustify="center" class="fastlink-bar animate__animated animate__fadeIn">
+    <!-- <div nz-col nzSpan="6" nzOrder="4" style="background: red;">1 col-order-4</div> -->
+    <div nz-col *ngFor="let category of categories; let i = index" nzXs="24" nzSm="24" nzMd="24" nzLg="6" nzXl="6"
+      [ngStyle]="setStyle(category)" (click)="openCategory(category.id)">
+      <div style="text-align: right">
+        <div style="padding: 16px 20px 0 0;color: #fff">
+          <p><b style="font-size: 18px;">{{category.type_ar}}</b> <br></p>
+        </div>
+
+        <div style="text-align: left;margin-top: 23px;">
+          <img src="{{category.image_url}}" width="100%"  height="200px" alt="" style="border-radius: 0 0 24px 24px">
+        </div>
+      </div>
+    </div>
+    <!-- &nbsp;
+        &nbsp;
+        &nbsp; -->
+    <!-- <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="6" nzXl="6" style="background: linear-gradient(to left bottom, #e75454, #5f1414 ); ;border-radius: 24px;" (click)="openCategory(categories[1].id)">
+            <div style="text-align: right">
+                <div style="padding: 16px 20px 0 0;color: #fff">
+                  <p><b style="font-size: 18px;">{{categories[1].type_ar}}</b> <br> </p>
+                </div>
+
+                <div style="text-align: left;margin-top: 23px;">
+                   <img src="{{categories[1].image_url}}" width="244px" height="200px"  alt="">
+                </div>
+            </div>
+        </div>
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="6" nzXl="6" style="background: linear-gradient(to left bottom, #e75454, #5f1414 ); ;border-radius: 24px;" (click)="openCategory(categories[0].id)">
+            <div style="text-align: right">
+                <div style="padding: 16px 20px 0 0;color: #fff">
+                  <p><b style="font-size: 18px;">{{categories[0].type_ar}}</b> <br> </p>
+                </div>
+
+                <div style="text-align: left;margin-top: 23px;">
+                   <img src="{{categories[0].image_url}}" width="244px" height="200px"  alt="">
+                </div>
+            </div>
+        </div> -->
+  </div>
+  <!-- <br>
+    <div nz-row nzJustify="center">
+        <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="9" nzXl="9" style="background: linear-gradient(to left bottom, #e75454, #5f1414 ); ;border-radius: 24px;" (click)="openCategory(categories[3].id)">
+            <div style="text-align: right">
+                <div style="padding: 16px 20px 0 0;color: #fff">
+                  <p><b style="font-size: 18px;">{{categories[3].type_ar}}</b> <br> </p>
+                </div>
+
+                <div style="text-align: left;margin-top: 23px;">
+                   <img src="{{categories[3].image_url}}" width="244px" height="200px"  alt="">
+                </div>
+            </div>
+        </div>
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="9" nzXl="9" style="background: linear-gradient(to left bottom, #e75454, #5f1414 ); ;border-radius: 24px;" (click)="openCategory(categories[4].id)">
+            <div style="text-align: right">
+                <div style="padding: 16px 20px 0 0;color: #fff">
+                  <p><b style="font-size: 18px;">{{categories[4].type_ar}}</b> <br> </p>
+                </div>
+
+                <div style="text-align: left;margin-top: 23px;">
+                   <img src="{{categories[4].image_url}}" width="244px" height="200px"  alt="">
+                </div>
+            </div>
+        </div>
+    </div> -->
+</div>
+
+<!-- loading -->
+<div *ngIf="!categories.length" style="text-align: center">
+  <img src="assets/images/loader-1.gif" width="340" height="340" style="text-align: center" alt="">
+</div>
+<!-- categories section end -->
+<br>
+<br>
+<!-- new products section -->
+<div>
+  <div class="web-new-products">
+    <div>
+      <!-- products-header -->
+      <!-- <div nz-row nzJustify="space-between" nzAlign="middle">
+                    <div nz-col  nzXs="8" nzSm="8" nzMd="8" nzLg="8" nzXl="8" style="text-align: start;">
+                        <div nz-row >
+                            <div nz-col ><button nz-button nzType="primary" nzShape="circle"><i nz-icon nzType="left"></i></button></div>
+                            &nbsp;
+                            &nbsp;
+                            <div nz-col><button nz-button nzType="primary" nzShape="circle"><i nz-icon nzType="right"></i></button></div>
+                        </div>
+                    </div>
+                    <div nz-col  nzXs="8" nzSm="8" nzMd="8" nzLg="8" nzXl="8" style="text-align: end"><b>وصل حديثاً</b><br><nz-space nzSize="small" style="background: linear-gradient(to left, brown, rgb(240, 245, 175));width: 35px;height: 5px;margin: 0px;padding: 0px;"></nz-space></div>
+                </div> -->
+      <!-- products-header end -->
+
+      <!-- products-scroll-bar -->
+      <!-- <div class="scroll-container hide-scrollbar" dir="ltr">
+                    <div *ngFor="let item of scrollItems;let i = index" style="height: 320px;" (click)="openProduct(item.id)">
+                        <div class="img">
+                            <img src="/assets/images/home/product-{{i < 4 ? i + 1 : 1}}.png" width="160" height="150" alt="">
+                        </div>
+                        <div style="text-align: center">
+                            <nz-rate [ngModel]="3.5"  nzDisabled dir="rtl" ></nz-rate>
+                        </div>
+                        <div style="text-align: center">
+                            <span><b style="font-size: 16px;color: #121212">أوصال لحم للشوي</b> <br>  <del dir="rtl" style="color: rgb(172, 172, 172);">120 ريال</del>&nbsp;&nbsp;<b dir="rtl">80 ريال</b></span>
+                        </div>
+                    </div>
+                </div> -->
+      <!-- products-scroll-bar end -->
+    </div>
+  </div>
+</div>
+<!-- new products section end -->
+
+<!-- web promo banner -->
+<!-- <div class="web-promo-banner" style="width: 100%;background: url(/assets/images/home/offer-section-bg.png);padding: 55px 20%;background-size: cover;background-repeat: no-repeat;" dir="rtl">
+        <p style="font-size: 2em;font-weight: bold">استمتع بخصم %10<br> على فئة الدجاج الطازج</p>
+        <button nz-button nzType="primary" style="width: 166px;background: #EBCE6D;border: none;color: #121212;" nzSize="large">تسوق الآن</button>
+     </div> -->
+<!-- web promo banner end -->
+
+<!-- mobile promo banner -->
+<!-- <div class="mobile-promo-banner" style="width: 100%;background: url(/assets/images/home/offer-section-bg.png);">
+        <div style="text-align: center;padding: 40px 100px">
+            <p style="font-size: 2em;font-weight: bold">استمتع بخصم %10<br> على فئة الدجاج الطازج</p>
+            <button nz-button nzType="primary" style="width: 166px;background: #EBCE6D;border: none;color: #121212;" nzSize="large">تسوق الآن</button>
+        </div>
+     </div> -->
+<!-- mobile promo banner end -->
+
+<!-- top ordered products -->
+<div style="padding: 200px"  *ngIf="topOrderedItems.length">
+  <!-- class="web-new-products animate__animated animate__fadeIn" -->
+  <div>
+    <div>
+      <!-- products-header -->
+      <div nzAlign="middle" style="padding: 30px 39px">
+        <div class="top-ordered"><b style="font-size: 20px">الأكثر طلباً</b><br><nz-space nzSize="small"
+            style="background: linear-gradient(to left, #6D1442, rgb(240, 245, 175));width: 35px;height: 5px;margin: 0px;padding: 0px;"></nz-space>
+        </div>
+      </div>
+      <!-- products-header end -->
+
+      <!-- products-scroll-bar -->
+      <div nz-row dir="rtl">
+        <div nz-col nzXs="24" nzSm="12" nzMd="12" nzLg="6" nzXl="6" *ngFor="let item of topOrderedItems;let i = index"
+          style="height: 320px;" (click)="openProduct(item.id)">
+          <!-- <div style="background: red;width: 180px;opacity: 0;"></div> -->
+          <div class="img" style="text-align: center">
+            <img src="{{item.images[0].image_url}}" width="250" height="200" style="border-radius: 14px" alt="">
+          </div>
+          <br>
+          <!--
+                            <div style="text-align: center">
+                                <nz-rate [ngModel]="3.5"  nzDisabled dir="rtl" ></nz-rate>
+                             </div>
+                             -->
+          <div style="text-align: center">
+            <span><b style="font-size: 20px;color: #6D1442">{{item.name_ar}}</b> <br> <del dir="rtl"
+                style="color: rgb(172, 172, 172);"
+                *ngIf="item['sale price'] != 0 && item.price < item['sale price']">{{item.price | number:'1.2-5'}}
+                {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</del>&nbsp;&nbsp;<b dir="rtl"
+                style="font-size: 20px">{{item['sale price'] == 0 ? item.price : item['sale price'] | number:'1.2-5'}}
+                {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</b></span>
+            <!-- <p style="font-weight: bold;text-align: center"> </p> -->
+          </div>
+        </div>
+      </div>
+      <!-- products-scroll-bar end -->
+    </div>
+  </div>
+</div>
+<!-- top ordered products end -->
+
+<!-- loading -->
+<div *ngIf="!topOrderedItems.length" style="text-align: center">
+  <img src="assets/images/loader-1.gif" width="340" height="340" style="text-align: center" alt="">
+</div>
+
+<!-- web promo banner -->
+<div class="web-download-section"
+  style="width: 100%;background: url(/assets/images/home/download-section-bg.png);background-repeat: no-repeat;background-position: center;padding: 5%;position: relative;">
+  <!-- <img src="" width="100%" alt=""> -->
+
+  <div style="width: 1100px;z-index: 100;height: 327px;background-repeat: no-repeat;margin: 0px auto;clear: both;">
+    <div style="float: left;padding-left: 2%;">
+      <img src="/assets/images/home/mockup-download.png" style="position: absolute;top: 7%;" alt="">
+    </div>
+
+    <div style="float: right;padding-right: 9%;" dir="rtl">
+      <p style="font-size: 2em;font-weight: bold;color: #121212;margin-top: 10%;"> حمل التطبيق الآن ! <br> <small
+          style="font-size: 19px;font-weight: 100;">قم بتحميل تطبيق الجوال واطلب اللي تبغاه</small></p>
+
+      <div>
+        <a
+          href="https://appgallery.huawei.com/app/C102802029"><img
+            src="/assets/images/home/appGallery-button.png" alt=""></a>
+        &nbsp;
+        <a href="https://apps.apple.com/us/app/turki-dabayh/id1115628569"><img src="/assets/images/home/app-store.png"
+            alt=""></a>
+        &nbsp;
+        <a href="https://play.google.com/store/apps/details?id=com.digishapes.turkieshop&hl=ar&gl=US"><img
+            src="/assets/images/home/play-store.png" alt=""></a>
+      </div>
+    </div>
+    <!-- <div style="clear: both;"></div> -->
+  </div>
+
+</div>
+<!-- web promo banner end -->
+
+<!-- mobile promo banner -->
+<div class="mobile-download-section"
+  style="width: 100%;background: url(/assets/images/home/download-section-bg.png);;background-repeat: no-repeat;background-position: center;padding: 5%;">
+  <!-- <img src="" width="100%" alt=""> -->
+  <div nz-row>
+    <!-- <div nz-col>
+            <div style="text-align: center">
+                <img src="/assets/images/home/mockup-download.png" alt="">
+            </div>
+        </div> -->
+    <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24">
+      <div style="text-align: center">
+        <p style="font-size: 2em;font-weight: bold;color: #121212;">! حمل التطبيق الآن <br> <small
+            style="font-size: 19px;font-weight: 100;">قم بتحميل تطبيق الجوال واطلب اللي تبغاه</small></p>
+
+        <div>
+          <a
+            href="https://appgallery.huawei.com/app/C102802029"><img
+              src="/assets/images/home/appGallery-button.png" width="28%" alt=""></a>
+          &nbsp;
+          <a href="https://apps.apple.com/us/app/turki-dabayh/id1115628569"><img src="/assets/images/home/app-store.png"
+              alt="" width="28%"></a>
+          &nbsp;
+          <a href="https://play.google.com/store/apps/details?id=com.digishapes.turkieshop&hl=ar&gl=US"><img
+              src="/assets/images/home/play-store.png" alt="" width="28%"></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- mobile promo banner end -->
+<br>
