@@ -23,7 +23,7 @@ jobs:
 
       - name: Update API URL for production
         run: |
-          sed -i 's|http://new-turki-project-api-v2.test/api/v2|https://almaraacompany.com/dashboard/api/v2|g' src/app/api.service.ts
+          sed -i 's|http://new-turki-project-backend.test/api/v2|https://almaraacompany.com/dashboard/api/v2|g' src/app/api.service.ts
 
       - name: Build Angular App
         run: npm run build -- --configuration=production
@@ -56,7 +56,7 @@ jobs:
 
       - name: Update API URL for production
         run: |
-          sed -i 's|http://new-turki-project-api-v2.test/api/v2|https://turkidabayeh.com/dashboard/api/v2|g' src/app/api.service.ts
+          sed -i 's|http://new-turki-project-backend.test/api/v2|https://turkidabayeh.com/dashboard/api/v2|g' src/app/api.service.ts
 
       - name: Build Angular App
         run: npm run build -- --configuration=production
