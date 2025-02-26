@@ -247,9 +247,9 @@
             <span><b style="font-size: 20px;color: #6D1442">{{item.name_ar}}</b> <br> <del dir="rtl"
                 style="color: rgb(172, 172, 172);"
                 *ngIf="item['sale price'] != 0 && item.price < item['sale price']">{{item.price | number:'1.2-5'}}
-                {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</del>&nbsp;&nbsp;<b dir="rtl"
+                {{country_iso_code != 'SA' ? 'درهم' : 'ريال'}}</del>&nbsp;&nbsp;<b dir="rtl"
                 style="font-size: 20px">{{item['sale price'] == 0 ? item.price : item['sale price'] | number:'1.2-5'}}
-                {{country_iso_code == 'SA' ? 'ريال' : 'درهم'}}</b></span>
+                {{country_iso_code != 'SA' ? 'درهم' : 'ريال'}}</b></span>
             <!-- <p style="font-weight: bold;text-align: center"> </p> -->
           </div>
         </div>
