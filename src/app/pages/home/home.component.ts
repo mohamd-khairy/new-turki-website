@@ -56,18 +56,18 @@ export class HomeComponent  implements OnInit {
 
   carouselItems =
   [
-    {
-      id: 1,
-      title: "إستمتع بأشهى اللحوم الطازجة",
-      btn_title: "تسوق الآن",
-      src: "/assets/images/header/slider-bg-old.png"
-    },
     // {
     //   id: 1,
     //   title: "إستمتع بأشهى اللحوم الطازجة",
     //   btn_title: "تسوق الآن",
     //   src: "/assets/images/header/slider-bg-old.png"
     // },
+    {
+      id: 1,
+      title: "إستمتع بأشهى اللحوم الطازجة",
+      btn_title: "تسوق الآن",
+      src: "/assets/images/header/baner-website.jpg"
+    },
     // {
     //   id: 2,
     //   title: "Enjoy The most appetizing fresh meat",
