@@ -511,7 +511,8 @@ export class ShoppingCartComponent implements OnInit {
       delivery_period_id: this.sacproducts.length ? 5 : this.orderDeliveryPeriod.id,
       using_wallet: 0,
       payment_type_id: this.paymentType.id,
-      address_id: this.orderSelectedAddress.id
+      address_id: this.orderSelectedAddress.id,
+      version_app: 2
     };
 
 
