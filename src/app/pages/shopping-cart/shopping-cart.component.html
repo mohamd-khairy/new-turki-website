@@ -187,7 +187,7 @@
                 <div *ngFor="let order_date of order_dates; let i = index" nz-col nzXs="10" nzSm="10" nzMd="7" nzLg="6" nzXl="4" [ngStyle]="{'background': orderDeliveryDate == order_date.date ? '#6D1442' : 'white', 'border-radius': '10px', 'padding': '13px', 'margin': '8px  5px'}" (click)="selectOrderDate(order_date)">
                     <div nz-row nzJustify="space-between" style="margin: 5px 0">
                         <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" nzXl="24" style="text-align: center;padding-top: 20%">
-                            <p [ngStyle]="{'color': orderDeliveryDate == order_date.date ? '#eee' : 'rgb(196, 195, 195)'}" *ngIf="!sacproducts.length">{{i == 0 ? 'اليوم' : (i == 1 ? 'غداً' : order_date.date_text )}}</p>
+                            <p [ngStyle]="{'color': orderDeliveryDate == order_date.date ? '#eee' : 'rgb(196, 195, 195)'}" *ngIf="!sacproducts.length">{{order_date.date_text}}</p>
                             <p [ngStyle]="{'color': orderDeliveryDate == order_date.date ? '#eee' : 'rgb(196, 195, 195)'}" *ngIf="sacproducts.length">{{ mapSacDay(i) }}</p>
                             <p [ngStyle]="{'font-size': '19px', 'color': orderDeliveryDate == order_date.date ? 'white' : '#121212'}" *ngIf="!sacproducts.length">{{order_date.date_num}}</p>
                         </div>
